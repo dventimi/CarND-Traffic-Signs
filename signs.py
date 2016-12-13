@@ -61,8 +61,8 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import ion
 import matplotlib.gridspec as gridspec
 ion()
-n = 7
-columns = 2
+n = 16
+columns = 4
 rows = n // columns + int(n % columns > 0)
 fig = plt.figure()
 plt.subplots_adjust(wspace=0.001, hspace=0.001)
@@ -71,6 +71,9 @@ for t in zip(range(n), np.random.choice(np.array(range(n_train)), 10, False)):
     plt.imshow(train['features'][t[1],], interpolation='nearest')
 
 # Count of each sign (histogram)
+
+fig = plt.figure()
+plt.hist(train['labels'], n_classes)
 
 ### Preprocess the data here.
 ### Feel free to use as many code cells as needed.

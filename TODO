@@ -1,0 +1,35 @@
+# -*- mode: org; -*-
+
+* TODO Experiment with different architectures.
+* TODO Normalize images.
+*** Brightness
+*** Contrast
+* TODO Try grayscale on images.
+* TODO Sub-sample training set to produce an even distribution.
+* TODO Generate fake data.
+*** Non-German signs
+*** Random shapes
+* TODO Split data.
+*** Training
+*** Validation
+*** Testing
+* TODO Try different optimizers, if they're available.
+* TODO Tune other parameters
+*** Batch Size
+*** Epocs
+*** Hyperparameters
+* TODO Get new images (5)
+*** From the web
+*** From the real world
+* TODO Find interesting candidates (5)
+*** Classified well
+*** Classified poorly
+*** Representative
+* TODO Explore the model's certainty.
+*** Softmax probabilities
+*** Visualization
+*** Rank its guesses
+* TODO Try the inception module.
+* TODO Heavily refactor code.
+*** Functions
+*** Parameters

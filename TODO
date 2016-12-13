@@ -33,3 +33,8 @@
 * TODO Heavily refactor code.
 *** Functions
 *** Parameters
+* TODO Pre-process the data
+*** Use 'coords' and 'sizes' to generate bounding boxes for signs.
+*** Draw bounding boxes onto all plotted images, with a helper function or functions.
+*** Clip images with bounding box before using them to train the model.
+*** Scale the clipped sign images so they're all the same size (32x32 or whatever).

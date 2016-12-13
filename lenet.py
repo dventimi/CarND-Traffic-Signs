@@ -28,30 +28,20 @@ BATCH_SIZE = 50
 # Don't worry about anything else in the file too much, all you have to do is
 # create the LeNet and return the result of the last fully connected layer.
 def LeNet(x):
-    # Reshape from 2D to 4D. This prepares the data for
-    # convolutional and pooling layers.
-    x = tf.reshape(x, (-1, 28, 28, 1))
-    # Pad 0s to 32x32. Centers the digit further.
-    # Add 2 rows/columns on each side for height and width dimensions.
-    x = tf.pad(x, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")
-    # 28x28x6
-    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 1, 6)))
+    x = tf.reshape(x, (-1, 28, 28, 1))                                                       # 2D->4D for convolutional and pooling layers
+    x = tf.pad(x, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")                         # Pad 0s->32x32, 2 rows/cols each side
+    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 1, 6)))                           # 28x28x6
     conv1_b = tf.Variable(tf.zeros(6))
     conv1 = tf.nn.conv2d(x, conv1_W, strides=[1, 1, 1, 1], padding='VALID') + conv1_b
     conv1 = tf.nn.relu(conv1)
-    # 14x14x6
-    conv1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
-    # 10x10x16
-    conv2_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16)))
+    conv1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID') # 14x14x6
+    conv2_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16)))                          # 10x10x16
     conv2_b = tf.Variable(tf.zeros(16))
     conv2 = tf.nn.conv2d(conv1, conv2_W, strides=[1, 1, 1, 1], padding='VALID') + conv2_b
     conv2 = tf.nn.relu(conv2)
-    # 5x5x16
-    conv2 = tf.nn.max_pool(conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
-    # Flatten
-    fc1 = flatten(conv2)
-    # (5 * 5 * 16, 120)
-    fc1_shape = (fc1.get_shape().as_list()[-1], 120)
+    conv2 = tf.nn.max_pool(conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID') # 5x5x16
+    fc1 = flatten(conv2)                                                                     # Flatten
+    fc1_shape = (fc1.get_shape().as_list()[-1], 120)                                         # (5 * 5 * 16, 120)
     fc1_W = tf.Variable(tf.truncated_normal(shape=(fc1_shape)))
     fc1_b = tf.Variable(tf.zeros(120))
     fc1 = tf.matmul(fc1, fc1_W) + fc1_b

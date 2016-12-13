@@ -54,7 +54,29 @@ print("Number of classes =", n_classes)
 ### Feel free to use as many code cells as needed.
 import matplotlib.pyplot as plt
 # Visualizations will be shown in the notebook.
-%matplotlib inline
+# %matplotlib inline
+
+# Sample of n sign images
+import matplotlib.pyplot as plt
+from matplotlib.pyplot import ion
+import matplotlib.gridspec as gridspec
+ion()
+n = 7
+columns = 2
+rows = n // columns + int(n % columns > 0)
+fig = plt.figure
+plt.subplots_adjust(wspace=0.001, hspace=0.001)
+for t in zip(range(n), np.random.choice(train['features'][:,0,0,0], size=n, replace=False)):
+    fig.add_subplot(rows,columns,t[0]+1)
+    plt.imshow(train['features'][t[1],], interpolation='nearest')
+
+# import matplotlib.image as img
+# import numpy as np
+
+from PIL import Image
+
+
+# Count of each sign (histogram)
 
 ### Preprocess the data here.
 ### Feel free to use as many code cells as needed.

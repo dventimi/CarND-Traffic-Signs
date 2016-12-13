@@ -3,8 +3,8 @@ import pickle
 
 # TODO: Fill this in based on where you saved the training and testing data
 
-training_file = ?
-testing_file = ?
+training_file = '../train.p'
+testing_file = '../test.p'
 
 with open(training_file, mode='rb') as f:
     train = pickle.load(f)
@@ -17,16 +17,33 @@ X_test, y_test = test['features'], test['labels']
 ### Replace each question mark with the appropriate value.
 
 # TODO: Number of training examples
-n_train = ?
+
+n_train = train['labels'].shape[0]
 
 # TODO: Number of testing examples.
-n_test = ?
+
+n_test = test['labels'].shape[0]
 
 # TODO: What's the shape of an traffic sign image?
-image_shape = ?
+
+image_shape = train['features'].shape[1:3]
 
 # TODO: How many unique classes/labels there are in the dataset.
-n_classes = ?
+
+# The labels are numeric (integers), so we could take advantage of the
+# natural ordering of numbers by subtracting the minimum label value
+# from the maximum label value and adding 1 (because both the min
+# value AND the max value are represented among the labels).
+
+n_classes = max(train['labels'])-min(train['labels'])+1
+
+# However, by doing this we implicitly assume that every possible
+# label (i.e., integer) in that interval is represented in the training
+# set.  That need not be the case.  Therefore, a more reliable way is
+# to count the number of unique elements within set of labels.
+
+import numpy as np
+n_classes = len(np.unique(train['labels']))
 
 print("Number of training examples =", n_train)
 print("Number of testing examples =", n_test)

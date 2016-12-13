@@ -30,6 +30,7 @@
 *** Visualization
 *** Rank its guesses
 * TODO Try the inception module.
+* TODO Try with/without mini-batching.
 * TODO Heavily refactor code.
 *** Functions
 *** Parameters

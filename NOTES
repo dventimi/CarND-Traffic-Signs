@@ -3,7 +3,338 @@
 * Introduction to Deep Learning Module
 * Regression and Classification
 * Neural Networks
+
+  - What is the Activation?  ::
+
+       \begin{equation}
+       a = \sum_{i=1}^k X_i w_i
+       \end{equation}
+
+  - What is the Firing Threshold?  ::
+
+       \[\theta\]
+
+  - What are the Weights?  ::
+
+       \[w_i\]
+
+  - What is a Perceptron?  ::
+
+       \begin{equation*}
+       y =
+       \begin{cases}
+       1 & if a \ge \theta, \\
+       0 & if a \lt \theta
+       \end{cases}
+       \end{equation*}
+
+  - What does a Perceptron represent geometrically?  ::
+
+       Hyperplanes
+
+  - Why can't XOR be computed with a single Perceptron?  ::
+
+       Because the output of XOR is not linearly-separable.
+
+  - What are two rules for training the weights?  ::
+
+    1. Perceptron Rule
+
+    2. Gradient Descent Rule
+
+  - What is the Perceptron Rule?  ::
+
+       \[ w_i = w_i + \Delta w_i \]
+
+       \[ \hat{y} = \left( \sum_i w_i X_i \ge 0 \right) \]
+
+       \[ \Delta w_i = \eta \left( y-\hat{y} \right) X_i \]
+
+       Where $y$ is the /target/, $\hat{y}$ is the /output/, and
+       $\eta$ is the /learning rate/.
+
+  - What is the Gradient Descent Rule?  ::
+
+       \[ w_i = w_i + \Delta w_i \]
+
+       \[ \Delta w_i = \eta \left( y-a \right) X_i \]
+
+  - What is a nice property of the Perceptron Rule?  ::
+
+       Finite convergence
+
+  - What is a nice property of the Gradient Descent Rule?  ::
+
+       Robustness
+
+  - What is the /Sigmoid Function/?  ::
+
+       \[ \sigma(a) = \frac{1}{1 + e^{-a}} \]
+
+       \[ a \to -\infty, \sigma(a) \to 0 \]
+
+       \[ a \to \infty, \sigma(a) \to 1 \]
+
+  - What is the derivative of the /Sigmoid Function/?  ::
+
+       \[ D \sigma(a) = \sigma(a) \left( 1-\sigma(a) \right) \]
+
+  - What are some advanced methods for optimizing a neural network?  ::
+
+    1. momentum
+
+    2. higher-order derivatives
+
+    3. randomized optimization
+
+    4. complexity penalty
+
+  - What are some things that contribute to neural network complexity?  ::
+
+    1. many nodes
+
+    2. many layers
+
+    3. large-valued weights
+
+  - What is /Restriction Bias/?  ::
+
+       /Restriction Bias/ is a model's representational power and
+       comprises the set of all hypotheses that we'll consider.  It
+       tells you something about what the model is /able/ to
+       represent.
+
+  - How can a Boolean function be represented by a neural net?  ::
+
+       with a network of threshold-like units
+
+  - How can a continuous function be represented by a neural net?  ::
+
+       with a single hidden layer
+
+  - How can an arbitrary function be represented by a neural net?  ::
+
+       with just two hidden layers
+
+  - How can we counter overfitting in a neural net?  ::
+
+       with cross-validation
+
+  - What is /Preference Bias/?  ::
+
+       /Preference Bias/ is an algorithm that tells you which among
+       several representations to prefer.
+
+  - How do we set the initial weights?  ::
+
+       Typically, with small, random values.
+
 * MiniFlow
 * Introduction to TensorFlow
+
+  - What was an important neural network of the 1980s?  ::
+
+       Fukushima's "Neocognition"
+
+  - What was an important neural network of the 1990s?  ::
+
+       Le Cun's "LENET-5"
+
+  - What was an important neural network of the 21st century?  ::
+
+       Krizhevsky's "ALEXNET"
+
+  - What are some important landmarks for neural networks in the 21st century?  ::
+
+    1. 2009:  speech recognition
+
+    2. 2012:  computer vision
+
+    3. 2014:  machine translation
+
+  - What are some reasons for the resurgence of popularity in neural networks?  ::
+
+    1. availability of large data sets
+
+    2. availability of computational resources
+
+  - How do you represent a constant in TensorFlow?  ::
+
+       #+BEGIN_SRC python
+       tensorflow.constant()
+       #+END_SRC
+
+  - How do you represent an environment for executing a computational graph in TensorFlow?  ::
+
+       #+BEGIN_SRC python
+       tensorflow.Session().run()
+       #+END_SRC
+
+  - How do you represent input data in TensorFlow?  ::
+
+       #+BEGIN_SRC python
+       x = tensorflow.placeholder(tf.string)
+       y = tensorflow.placeholder(tf.int32)
+       z = tensorflow.placeholder(tf.float32)
+       #+END_SRC
+
+  - How do you feed input to set the placeholder tensor in TensorFlow?  ::
+
+       #+BEGIN_SRC python
+       tensorflow.Session().run(x, feed_dict={x: 'Hello, World!'})
+       #+END_SRC
+
+  - How do you perform arithmetic in TensorFlow?   ::
+
+       #+BEGIN_SRC python
+       x = tf.add(5, 2)
+       y = tf.sub(10, 4)
+       z = tf.mul(2, 5)
+       t = tf.div(10, 2)
+       #+END_SRC
+
+  - What is the fundamental building block of Machine Learning?  ::
+
+       classification
+
+  - What is another name for a /Logistic Classifier/?  ::
+
+       linear classifer
+
+  - What is the mathematical form of a /Logistic Classifier/?  ::
+
+       \[ W X + b = y \]
+
+       Where $W$ are the /weights/, $X$ are the /input data/, $b$ are
+       the /bias/, and $y$ are the /output scores/.
+
+  - What is the /SoftMax Function/  ::
+
+       The /SoftMax Function/ is a convenient way to turn a set of
+       real numbers scores into a set of probabilities.
+
+  - What is the mathematical form of the /SoftMax Function/?  ::
+
+       \[ S(y_i) = \frac{e^{y_i}}{\sum_j e^{y_j}} \]
+
+  - What is another name for the /output scores/ in /Logistic Regression/?  ::
+
+       logits
+
+  - How do you represent the weights and biases of a neural network in TensorFlow?  ::
+
+       #+BEGIN_SRC python
+       x = tensorflow.Variable(5)
+       #+END_SRC
+
+  - How do you initialize the state of a ~tensorflow.Variable()~ in TensorFlow?  ::
+
+       #+BEGIN_SRC python
+       tensorflow.Session().run(tensorflow.initialize_all_variables())
+       #+END_SRC
+
+  - Why do you initialize the state of a ~tensorflow.Variable()~ in TensorFlow?  ::
+
+       because this tensor stores its state in the session
+
+  - How do you generate random numbers over a normal distribution in TensorFlow?  ::
+
+       #+BEGIN_SRC python
+       n_features = 120
+       n_labels = 5
+       weights = tensorflow.Variable(tensorflow.truncated_normal((n_features, n_labels)))
+       #+END_SRC
+
+  - How do you create a tensor of zeros in TensorFlow?  ::
+
+       #+BEGIN_SRC python
+       tensorflow.zeros(5)
+       #+END_SRC
+
+  - How do you create an operation for the /SoftMax Function/ in TensorFlow?  ::
+
+       #+BEGIN_SRC python
+       x = tensorflow.nn.softmax([2.0, 1.0, 0.2])
+       #+END_SRC
+
+  - How does scaling up the output scores (/logits/) of your classifier affect the output probabilities?  ::
+
+       It makes the largest approach 1 and all the others approach 0,
+       which means that your classifier is more confident about its
+       prediction.
+
+  - How does scaling down the output scores (/logits/) of your classifier affect the output probabilities?  ::
+
+       It makes all of them approach 0, which means that your
+       classifier is less confident about its prediction.
+
+  - What is /One-Hot Encoding/? ::
+
+       /One-Hot Encoding/ represents your labels as a vector, with as
+       many elements as there are output classes, with a 1 for the
+       correct label and a 0 for all the others.
+
+  - When does /One-Hot Encoding/ break down?  ::
+
+       when the number of classes becomes very large
+
+  - How do we measure the distance between the label probability vector and the classifier's output probability vector?  ::
+
+       with /cross-entropy/?
+
+  - What is /Cross-Entropy/?  ::
+
+       \[ D(S, L) = - \sum_i L_i \log(S_i) \]
+
+       where $S = S(y)$ is the /SoftMax Function/ vector and $L$ is
+       the label probability vector.
+
+  - What are the components of a linear classifier in schematic form?  ::
+
+       #+BEGIN_SRC ditaa :file linear-model.png
+       +--------------------------------------+
+       |  x                                   |
+       |  Input                               |
+       +--------------------------------------+
+                         | Wx + b 
+                         V
+       +--------------------------------------+
+       |  y                                   |
+       |  Logit                               |
+       +--------------------------------------+
+                         | S(y)
+                         V
+       +--------------------------------------+
+       |  x                                   |
+       |  SoftMax                             |
+       +--------------------------------------+
+                         | D(S,L)
+                         V
+       +--------------------------------------+
+       |  x                                   |
+       |  One-Hot Labels                      |
+       +--------------------------------------+
+       #+END_SRC
+
+  - What is the mathematical form of /Multinomial Logistic Regression/?  ::
+
+       \[ D(S(W X + b), L) \]
+
+  - How do you represent the /Cross-Entropy Function/ in TensorFlow?  :: 
+
+       #+BEGIN_SRC python
+       import tensorflow as tf
+       softmax_data = [0.7, 0.2, 0.1]
+       one_hot_data = [1.0, 0.0, 0.0]
+       softmax = tf.placeholder(tf.float32)
+       one_hot = tf.placeholder(tf.float32)
+       cross_entropy = -tf.reduce_sum(tf.mul(one_hot, tf.log(softmax)))
+       output = tf.Session().run(cross_entropy, feed_dict={softmax: softmax_data, one_hot: one_hot_data})
+       #+END_SRC
+
+  - What is an example of a /Loss Function/ in mathematical form?   :: 
+
+       \[ \mathscr{L}(W, b) = \frac{1}{N} \sum_i D(S(W X_i + b), L_i) \]
+
 * Deep Neural Networks
 * Convolutional Neural Networks

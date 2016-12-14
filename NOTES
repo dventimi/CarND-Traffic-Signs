@@ -30,7 +30,7 @@
 
   - What does a Perceptron represent geometrically?  ::
 
-       Hyperplanes
+       Hyper-planes
 
   - Why can't XOR be computed with a single Perceptron?  ::
 
@@ -199,7 +199,7 @@
 
   - What is another name for a /Logistic Classifier/?  ::
 
-       linear classifer
+       linear classifier
 
   - What is the mathematical form of a /Logistic Classifier/?  ::
 
@@ -355,7 +355,7 @@
 
   - How do you condition your weights and biases?  :: 
 
-       Draw them randomly from a Guassian distribution with a mean of
+       Draw them randomly from a Gaussian distribution with a mean of
        0 and a standard deviation of $\sigma$.
 
   - What are the steps of the optimization loop?  :: 
@@ -380,7 +380,7 @@
        usually statistically significant, and typically can be
        trusted.
 
-  - What is a common minimium size validation set?  :: 
+  - What is a common minimum size validation set?  :: 
 
        30,000 examples which yields better than 0.1% accuracy.
 
@@ -478,7 +478,7 @@
 
   - What is a disadvantage of mini-batching?   :: 
 
-       Mini-batching is ineficient, since you cannot calculate the
+       Mini-batching is inefficient, since you cannot calculate the
        loss simultaneously across all of the samples.
 
   - How do you implement mini-batching in TensorFlow?  :: 
@@ -492,9 +492,14 @@
   - What is an /epoch/?  :: 
 
        An /epoch/ is a single forward and backward pass of the whole
-       dataset, that is used to increase the accuracy of the model
+       data-set, that is used to increase the accuracy of the model
        without requiring more data.
 
 * Deep Neural Networks
 
 * Convolutional Neural Networks
+
+#  LocalWords:  ge lt infty MiniFlow TensorFlow Fukushima's Cun's tf
+#  LocalWords:  Neocognition LENET Krizhevsky's ALEXNET tensorflow Wx
+#  LocalWords:  mul SoftMax ditaa png Logit softmax mathscr langle
+#  LocalWords:  rangle RGB SGD ADAGRAD

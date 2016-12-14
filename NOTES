@@ -336,5 +336,165 @@
 
        \[ \mathscr{L}(W, b) = \frac{1}{N} \sum_i D(S(W X_i + b), L_i) \]
 
+  - What are two guiding principles for achieving numerical stability in gradient descent?  :: 
+
+    1. variables have zero mean:  $\langle X_i \rangle = 0$
+
+    2. variables have equal variance:  $\sigma(X_i) = \sigma(X_j)$
+
+  - What does /badly-conditioned/ mean for optimization problems?  ::
+
+       /Badly-conditioned/ means that the optimizer has to search a
+       lot for the optimum.
+
+  - How do you condition your variables when dealing with RGB images?  :: 
+
+       Compute the scaled quantities for each pixel:
+
+       \[ \frac{R-128}{128}, \frac{G-128}{128}, \frac{B-128}{128} \]
+
+  - How do you condition your weights and biases?  :: 
+
+       Draw them randomly from a Guassian distribution with a mean of
+       0 and a standard deviation of $\sigma$.
+
+  - What are the steps of the optimization loop?  :: 
+
+    1. \[ w \gets w - \alpha \Delta_w \mathscr{L} \]
+
+    2. \[ b \gets b - \alpha \Delta_b \mathscr{L} \]
+
+  - How do you guard against your classifier memorizing your training data?  ::
+
+       Select a portion of your training data and set it aside as test
+       data.
+
+  - How do you guard against your classifier learning about your test data?  :: 
+
+       Select another portion of your training data and set it aside
+       as validation data.
+
+  - What is the "Rule of 30"?  :: 
+
+       A change that affects 30 examples in your validation set is
+       usually statistically significant, and typically can be
+       trusted.
+
+  - What is a common minimium size validation set?  :: 
+
+       30,000 examples which yields better than 0.1% accuracy.
+
+  - When is this heuristic typically invalid?  :: 
+
+       When your training sample is not /well-balanced/?
+
+  - What does /well-balanced/ mean in the context of training set sizes?  :: 
+
+       /Well-balanced/ means that all of the classes occur with
+       approximately equal frequency within the training set.
+
+  - What is the best way to cope with training data that are not /well-balanced/?  :: 
+
+       Get more data.
+
+  - What is another way to cope with training data that are not /well-balanced/, when getting more data is not an option?  :: 
+
+       /Cross-validation/
+
+  - What is one problem with /Cross-validation/?  :: 
+
+       /Cross-validation/ is often a slow process.
+
+  - What is a fundamental problem with Gradient Descent?  :: 
+
+       Gradient descent is difficult to scale.
+
+  - What is the typical ratio of computational operations for the gradient of a loss function relative to the loss function itself?  :: 
+
+       3:1
+
+  - What is an alternative to Gradient Descent that has better scaling properties?  :: 
+
+       Stochastic Gradient Descent
+
+  - What is /Stochastic Gradient Descent/?  :: 
+
+       /Stochastic Gradient Descent/ (SGD) computes the average loss
+       function over a random sample of the training data at each
+       step, rather than over all of the data at each step, when
+       computing the derivative.
+
+  - How many training samples are typically in a training set in Stochastic Gradient Descent?  :: 
+
+       Between 1 and 1000
+
+  - How do we compensate for the bad derivative estimates of SGD?  :: 
+
+       by taking very small steps
+
+  - How do we incorporate /momentum/ in SGD?  :: 
+
+       Keep a running average of the gradients, rather than the most
+       current gradient estimate.
+
+  - What is /learning rate decay/ in SGD:  :: 
+
+       Make the learning rate smaller as you train.
+
+  - Which is better, a larger learning rate or a smaller learning rate?  :: 
+
+       While there's no one size that fits all, often a smaller
+       learning rate actually will produce a better, more accurate
+       classifier than a larger learning rate will.
+
+  - What are some common hyper-parameters in optimizing a linear classifier?  :: 
+
+    1. initial learning rate
+
+    2. learning rate decay
+
+    3. momentum
+
+    4. batch size
+
+    5. weight initialization
+
+  - What is ADAGRAD?  ::
+
+       ADAGRAD is a modification of SGD that implicitly does momentum
+       and learning rate decay.  It's often easier and more robust
+       than plain SGD, but it's also often a little worse than
+       precisely-tuned SGD.
+
+  - What is /mini-batching/?  :: 
+
+       /Mini-batching/ is a technique for training on subsets of the
+       data instead of on all of the data.
+
+  - What is an advantage of mini-batching?  :: 
+
+       Mini-batching provides the ability to train a model even if a
+       computer lacks the memory to store the complete data set.
+
+  - What is a disadvantage of mini-batching?   :: 
+
+       Mini-batching is ineficient, since you cannot calculate the
+       loss simultaneously across all of the samples.
+
+  - How do you implement mini-batching in TensorFlow?  :: 
+
+       #+BEGIN_SRC python
+       # Features and Labels
+       features = tensorflow.placeholder(tensorflow.float32, [None, n_input])
+       labels = tensorflow.placeholder(tensorflow.float32, [None, n_classes])       
+       #+END_SRC
+
+  - What is an /epoch/?  :: 
+
+       An /epoch/ is a single forward and backward pass of the whole
+       dataset, that is used to increase the accuracy of the model
+       without requiring more data.
+
 * Deep Neural Networks
+
 * Convolutional Neural Networks

@@ -109,21 +109,20 @@ h = plt.hist(train['labels'], n_classes)
 # Implement basic neural net first
 ################################################################################
 
-i = tf.placeholder(tf.int32, [None, image_shape[0], image_shape[1]], name='i')
-x = tf.reshape(i, [-1, image_shape[0]*image_shape[1]])
+x_in = tf.placeholder(tf.int32, [None, image_shape[0], image_shape[1]], name='x_in')
+y_in = tf.placeholder(tf.int32, [None], name='y_in')
+x = tf.reshape(x_in, [-1, image_shape[0]*image_shape[1]])
 x = tf.to_float(x)
 W = tf.Variable(tf.zeros([image_shape[0]*image_shape[1], n_classes]))
 b = tf.Variable(tf.zeros([n_classes]))
 y = tf.nn.softmax(tf.matmul(x, W)+b)
-j = tf.placeholder(tf.int32, [None], name='j')
-y_ = tf.one_hot(j, n_classes, axis=1)
-
+y_ = tf.one_hot(y_in, n_classes, axis=1)
 cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y), reduction_indices=[1]))
 train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
 init = tf.initialize_all_variables()
 sess = tf.Session()
 sess.run(init)
-sess.run(train_step, feed_dict={i: train['flat_features'], j: train['labels']})
+sess.run(train_step, feed_dict={x_in: train['flat_features'], y_in: train['labels']})
 
 # for batch_xs, batch_ys in batches(1000, train['flat_features'], train['labels']):
 #     sess.run(train_step, feed_dict={i: batch_xs, j: batch_ys})

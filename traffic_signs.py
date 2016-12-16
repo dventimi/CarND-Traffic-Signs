@@ -1,8 +1,8 @@
 # Load pickled data
 import pickle
-
-# Load other packages
+import tensorflow as tf
 import cv2
+
 # from sklearn.model_selection import train_test_split
 
 # TODO: Fill this in based on where you saved the training and testing data
@@ -62,7 +62,19 @@ import matplotlib.pyplot as plt
 # Visualizations will be shown in the notebook.
 # %matplotlib inline
 
-# Sample of n sign images
+# Utility functions
+
+import math
+def batches(batch_size, features, labels):
+    assert len(features) == len(labels)
+    outout_batches = []
+    sample_size = len(features)
+    for start_i in range(0, sample_size, batch_size):
+        end_i = start_i + batch_size
+        batch = [features[start_i:end_i], labels[start_i:end_i]]
+        outout_batches.append(batch)
+    return outout_batches
+
 
 def image_gallery(images, n=16, ncols=4, filter=lambda x: (x, None)):
     import matplotlib.pyplot as plt
@@ -84,6 +96,10 @@ image_gallery(train['features'])
 
 image_gallery(train['features'], filter=lambda x: (cv2.cvtColor(x, cv2.COLOR_BGR2GRAY), 'gray'))
 
+# training set of grayscale images
+
+train['flat_features'] = np.array([cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) for img in train['features']])
+
 # Count of each sign (histogram)
 
 fig = plt.figure()
@@ -92,8 +108,6 @@ h = plt.hist(train['labels'], n_classes)
 ################################################################################
 # Implement basic neural net first
 ################################################################################
-
-import tensorflow as tf
 
 i = tf.placeholder(tf.int32, [None, image_shape[0], image_shape[1]], name='i')
 x = tf.reshape(i, [-1, image_shape[0]*image_shape[1]])
@@ -105,30 +119,15 @@ j = tf.placeholder(tf.int32, [None], name='j')
 y_ = tf.one_hot(j, n_classes, axis=1)
 
 cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y), reduction_indices=[1]))
-
 train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
-
 init = tf.initialize_all_variables()
-
 sess = tf.Session()
 sess.run(init)
+sess.run(train_step, feed_dict={i: train['flat_features'], j: train['labels']})
 
-import math
-def batches(batch_size, features, labels):
-    assert len(features) == len(labels)
-    outout_batches = []
-    sample_size = len(features)
-    for start_i in range(0, sample_size, batch_size):
-        end_i = start_i + batch_size
-        batch = [features[start_i:end_i], labels[start_i:end_i]]
-        outout_batches.append(batch)
-    return outout_batches
+# for batch_xs, batch_ys in batches(1000, train['flat_features'], train['labels']):
+#     sess.run(train_step, feed_dict={i: batch_xs, j: batch_ys})
 
-train['flat_features'] = np.array([cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) for img in train['features']])
-
-for batch_xs, batch_ys in batches(1000, train['flat_features'], train['labels']):
-    sess.run(train_step, feed_dict={i: batch_xs, j: batch_ys})
-
-correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
-accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-print(sess.run(accuracy, feed_dict={x: , y_: }))
+# correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
+# accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+# print(sess.run(accuracy, feed_dict={x: , y_: }))

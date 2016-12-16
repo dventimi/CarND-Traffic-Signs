@@ -39,3 +39,4 @@
 *** Draw bounding boxes onto all plotted images, with a helper function or functions.
 *** Clip images with bounding box before using them to train the model.
 *** Scale the clipped sign images so they're all the same size (32x32 or whatever).
+*** Shuffle data?

@@ -57,17 +57,27 @@ import matplotlib.pyplot as plt
 # %matplotlib inline
 
 # Sample of n sign images
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
+
+def image_gallery(images, n=16, ncols=4):
+    import matplotlib.pyplot as plt
+    import matplotlib.gridspec as gridspec
+    rows = n // ncols + int(n % ncols > 0)
+    fig = plt.figure()
+    plt.subplots_adjust(wspace=0.001, hspace=0.001)
+    for t in zip(range(n), np.random.choice(np.array(range(images.shape[0])), n, False)):
+        fig.add_subplot(rows,ncols,t[0]+1)
+        plt.imshow(images[t[1],], interpolation='nearest')
+
+
 plt.ion()
-n = 16
-columns = 4
-rows = n // columns + int(n % columns > 0)
-fig = plt.figure()
-plt.subplots_adjust(wspace=0.001, hspace=0.001)
-for t in zip(range(n), np.random.choice(np.array(range(n_train)), n, False)):
-    fig.add_subplot(rows,columns,t[0]+1)
-    plt.imshow(train['features'][t[1],], interpolation='nearest')
+image_gallery(train['features'])
+
+# Sample of grayscale images
+
+def grayscale(img):
+    import cv2
+    return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
 
 # Count of each sign (histogram)
 
@@ -101,20 +111,23 @@ BATCH_SIZE = 50
 # Don't worry about anything else in the file too much, all you have to do is
 # create the LeNet and return the result of the last fully connected layer.
 def LeNet(x):
-    x = tf.reshape(x, (-1, 28, 28, 1))                                                       # 2D->4D for convolutional and pooling layers
-    x = tf.pad(x, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")                         # Pad 0s->32x32, 2 rows/cols each side
-    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 1, 6)))                           # 28x28x6
+    x = tf.reshape(x, (-1, 32, 32, 3))
+    # x = tf.pad(x, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")
+    
+    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 3, 32)))
     conv1_b = tf.Variable(tf.zeros(6))
-    conv1 = tf.nn.conv2d(x, conv1_W, strides=[1, 1, 1, 1], padding='VALID') + conv1_b
+    conv1 = tf.nn.relu(tf.nn.conv2d(x, conv1_W, strides=[1, 1, 1, 1], padding='VALID') + conv1_b)
     conv1 = tf.nn.relu(conv1)
-    conv1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID') # 14x14x6
-    conv2_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16)))                          # 10x10x16
+    conv1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
+    
+    conv2_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16)))
     conv2_b = tf.Variable(tf.zeros(16))
     conv2 = tf.nn.conv2d(conv1, conv2_W, strides=[1, 1, 1, 1], padding='VALID') + conv2_b
     conv2 = tf.nn.relu(conv2)
-    conv2 = tf.nn.max_pool(conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID') # 5x5x16
-    fc1 = flatten(conv2)                                                                     # Flatten
-    fc1_shape = (fc1.get_shape().as_list()[-1], 120)                                         # (5 * 5 * 16, 120)
+    conv2 = tf.nn.max_pool(conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
+    
+    fc1 = flatten(conv2)
+    fc1_shape = (fc1.get_shape().as_list()[-1], 120)
     fc1_W = tf.Variable(tf.truncated_normal(shape=(fc1_shape)))
     fc1_b = tf.Variable(tf.zeros(120))
     fc1 = tf.matmul(fc1, fc1_W) + fc1_b

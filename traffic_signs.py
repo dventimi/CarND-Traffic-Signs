@@ -96,9 +96,10 @@ image_gallery(train['features'])
 
 image_gallery(train['features'], filter=lambda x: (cv2.cvtColor(x, cv2.COLOR_BGR2GRAY), 'gray'))
 
-# training set of grayscale images
+# training and testing sets of grayscale images
 
 train['flat_features'] = np.array([cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) for img in train['features']])
+test['flat_features'] = np.array([cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) for img in test['features']])
 
 # Count of each sign (histogram)
 
@@ -109,21 +110,23 @@ h = plt.hist(train['labels'], n_classes)
 # Implement basic neural net first
 ################################################################################
 
+batch_size = 15000
+learning_rate = 0.05
 x = tf.placeholder(tf.int32, [None, image_shape[0], image_shape[1]], name='x')
 y_ = tf.placeholder(tf.int32, [None], name='y_')
 W = tf.Variable(tf.zeros([image_shape[0]*image_shape[1], n_classes]))
 b = tf.Variable(tf.zeros([n_classes]))
 y = tf.nn.softmax(tf.matmul(tf.to_float(tf.reshape(x, [-1, image_shape[0]*image_shape[1]])), W)+b)
 cross_entropy = tf.reduce_mean(-tf.reduce_sum(tf.one_hot(y_, n_classes) * tf.log(y), reduction_indices=[1]))
-train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
+train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(cross_entropy)
 init = tf.initialize_all_variables()
 sess = tf.Session()
 sess.run(init)
-sess.run(train_step, feed_dict={x: train['flat_features'], y_: train['labels']})
+# sess.run(train_step, feed_dict={x: train['flat_features'], y_: train['labels']})
+for batch_xs, batch_ys in batches(batch_size, train['flat_features'], train['labels']):
+    sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
 
-# for batch_xs, batch_ys in batches(1000, train['flat_features'], train['labels']):
-#     sess.run(train_step, feed_dict={i: batch_xs, j: batch_ys})
+correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(tf.one_hot(y_, n_classes),1))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+print(sess.run(accuracy, feed_dict={x: test['flat_features'], y_: test['labels']}))
 
-# correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(tf.one_hot(y_, n_classes),1))
-# accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-# print(sess.run(accuracy, feed_dict={x: , y_: }))

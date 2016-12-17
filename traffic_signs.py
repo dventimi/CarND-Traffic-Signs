@@ -110,23 +110,23 @@ h = plt.hist(train['labels'], n_classes)
 # Implement basic neural net first
 ################################################################################
 
-batch_size = 15000
-learning_rate = 0.05
-x = tf.placeholder(tf.int32, [None, image_shape[0], image_shape[1]], name='x')
-y_ = tf.placeholder(tf.int32, [None], name='y_')
+epochs=1000
+batch_size = 100
+learning_rate = 0.01
+x = tf.placeholder(tf.int32, [None, image_shape[0], image_shape[1]])
+y_ = tf.placeholder(tf.int32, [None])
 W = tf.Variable(tf.zeros([image_shape[0]*image_shape[1], n_classes]))
 b = tf.Variable(tf.zeros([n_classes]))
-y = tf.nn.softmax(tf.matmul(tf.to_float(tf.reshape(x, [-1, image_shape[0]*image_shape[1]])), W)+b)
-cross_entropy = tf.reduce_mean(-tf.reduce_sum(tf.one_hot(y_, n_classes) * tf.log(y), reduction_indices=[1]))
+y = tf.matmul(tf.to_float(tf.reshape(x, [-1, image_shape[0]*image_shape[1]])), W)+b
+cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y, tf.one_hot(y_, n_classes)))
 train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(cross_entropy)
 init = tf.initialize_all_variables()
 sess = tf.Session()
 sess.run(init)
-# sess.run(train_step, feed_dict={x: train['flat_features'], y_: train['labels']})
-for batch_xs, batch_ys in batches(batch_size, train['flat_features'], train['labels']):
-    sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
-
-correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(tf.one_hot(y_, n_classes),1))
-accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-print(sess.run(accuracy, feed_dict={x: test['flat_features'], y_: test['labels']}))
+for i in range(epochs):
+    for batch_xs, batch_ys in batches(batch_size, train['flat_features'], train['labels']):
+        sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
+    correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(tf.one_hot(y_, n_classes),1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    print(sess.run(accuracy, feed_dict={x: test['flat_features'], y_: test['labels']}))
 

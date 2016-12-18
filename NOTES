@@ -17,9 +17,9 @@
 
   - What is the Activation?  ::
 
-       \begin{equation}
+       \begin{equation*}
        a = \sum_{i=1}^k X_i w_i
-       \end{equation}
+       \end{equation*}
 
   - What is the Firing Threshold?  ::
 
@@ -32,10 +32,10 @@
   - What is a Perceptron?  ::
 
        \begin{equation*}
-       y =
+       y(a) =
        \begin{cases}
-       1 & \text{if} a \ge \theta, \\
-       0 & \text{if} a \lt \theta
+       1 & (a \ge 0) \\
+       0 & (a < 0)
        \end{cases}
        \end{equation*}
 
@@ -516,8 +516,8 @@
        \begin{equation*}
        y(x) = 
        \begin{cases}
-       0, & x \le 0 \\
-       x, & x \gt 0
+       0 & (x \le 0) \\
+       x & (x > 0)
        \end{cases}
        \end{equation*}
 
@@ -526,8 +526,8 @@
        \begin{equation*}
        y(x) = 
        \begin{cases}
-       0, & x \le 0 \\
-       1, & x \gt 0
+       0 & (x \le 0) \\
+       1 & (x > 0)
        \end{cases}
        \end{equation*}
 
@@ -609,7 +609,7 @@
   - What is /L_2 Regularization/?  :: 
 
        /L_2 Regularization/ adds another term to the /loss/, which
-       penalizes large weights, typically by adding a termo containing
+       penalizes large weights, typically by adding a term containing
        the /L_2 norm/ of the weights.
 
        \[ \mathscr{L}' = \mathscr{L} + \beta \frac{1}{2} \|W\|_2^2 \]
@@ -617,7 +617,7 @@
   - What is the /L_2 norm/?  :: 
 
        The /L_2 norm/ is the sum of the squares of the individual
-       elements in a vector, multipled by 1/2.
+       elements in a vector, multiplied by 1/2.
 
   - What is the derivative of the /L_2 norm/ of a vector W?  :: 
 
@@ -689,7 +689,7 @@
 
   - What is a /kernel/ in a convnet?  :: 
 
-       /Kernal/ is just another name for patch.
+       /Kernel/ is just another name for patch.
 
   - What is a /feature map/ in a convnet?  :: 
 
@@ -698,7 +698,7 @@
 
   - What is a /filter/ in a convnet?  :: 
 
-       /Filter/ is just another name for patch or kernal.
+       /Filter/ is just another name for patch or kernel.
 
   - What is /stride/ in a convnet?  :: 
 
@@ -816,19 +816,19 @@
        +--------------------------------------+
        +cRED         Classifier               +
        +--------------------------------------+
-       +cYEL         Fully Connected          +
+       +cYEL       Fully Connected            +
        +--------------------------------------+
-       +cYEL         Fully Connected          +
-       +--------------------------------------+
-       +cRED         Max Pooling              +
-       +--------------------------------------+
-       +cGRE         Convolution              +
+       +cYEL       Fully Connected            +
        +--------------------------------------+
        +cRED         Max Pooling              +
        +--------------------------------------+
        +cGRE         Convolution              +
        +--------------------------------------+
-       +cBLU         Image                    +
+       +cRED         Max Pooling              +
+       +--------------------------------------+
+       +cGRE         Convolution              +
+       +--------------------------------------+
+       +cBLU           Image                  +
        +--------------------------------------+
        #+END_SRC
 
@@ -855,5 +855,7 @@
 
 #  LocalWords:  ge lt infty MiniFlow TensorFlow Fukushima's Cun's tf
 #  LocalWords:  Neocognition LENET Krizhevsky's ALEXNET tensorflow Wx
-#  LocalWords:  mul SoftMax ditaa png Logit softmax mathscr langle
-#  LocalWords:  rangle RGB SGD ADAGRAD
+#  LocalWords:  mul SoftMax ditaa png Logit softmax mathscr langle le
+#  LocalWords:  rangle RGB SGD ADAGRAD usepackage mathrsfs amsmath
+#  LocalWords:  amssymb Nanodegree RELU sess ckpt Convnet convnet
+#  LocalWords:  conv ksize cRED cYEL cGRE cBLU convnets

@@ -1,6 +1,11 @@
 # -*- mode: org; -*-
 
 #+OPTIONS: toc:nil f:nil
+#+OPTIONS: tex:dvipng
+#+LATEX_HEADER: \usepackage{mathrsfs}
+# #+LATEX_HEADER: \usepackage{amsmath}
+# #+LATEX_HEADER: \usepackage{amssymb}
+# #+LATEX_HEADER: \usepackage{cancel}
 
 #+TITLE:  Nanodegree Program:  Self-Driving Car
 #+AUTHOR: David A. Ventimiglia
@@ -612,7 +617,7 @@
   - What is the /L_2 norm/?  :: 
 
        The /L_2 norm/ is the sum of the squares of the individual
-       elements in a vector, multipled by $1/2$.
+       elements in a vector, multipled by 1/2.
 
   - What is the derivative of the /L_2 norm/ of a vector W?  :: 
 
@@ -646,8 +651,207 @@
        logits = tf.add(tf.matmul(hidden_layer, weights[1]), biases[1])       
        #+END_SRC
 
-
 * Convolutional Neural Networks
+
+  - What is /weight sharing/?  ::
+
+       /Weight sharing/ the sharing of inputs and the joint training
+       of their weights when you know /a priori/ that they contain the
+       same kind of information.  They help preserve statistical
+       invariants, such as translation invariance.
+
+  - How does weight sharing manifest in deep neural networks for images?  :: 
+
+       /Convolutional Neural Networks/
+
+  - How does weight sharing manifest in deep neural networks for text and sequences in general?  :: 
+
+       /Embeddings/ and /Recurrent Neural Networks/
+
+  - What are /Convolutional Neural Networks/ :: 
+
+       /Convolutional Neural Networks/---or /Convnets/---perform
+       weight sharing across spacial dimensions, such as for images.
+
+  - What is a /convolution/ in a Convnet?  :: 
+
+       A /convolution/ is a small neural network operating on a small
+       patch of an image, whereby the patch "slides" over the image,
+       mapping the network output to a new image.
+
+  - In a convnet pyramid, how do the spatial extent and the depth of each layer trend, from the base (input) to the tip (output)?  :: 
+
+       The spatial extent shrinks while the depth increases.
+
+  - What does the depth represent in a layer of a convnet?  :: 
+
+       semantic representation
+
+  - What is a /kernel/ in a convnet?  :: 
+
+       /Kernal/ is just another name for patch.
+
+  - What is a /feature map/ in a convnet?  :: 
+
+       A /feature map/ is just another name the individual layers
+       within a convnet layer, along the depth dimension.
+
+  - What is a /filter/ in a convnet?  :: 
+
+       /Filter/ is just another name for patch or kernal.
+
+  - What is /stride/ in a convnet?  :: 
+
+       /Stride/ refers to the number of pixels that you're shifting
+       each time you move your filter.
+
+  - What is /Valid Padding/ in a convnet?  :: 
+
+       /Valid Padding/ is when your patch does not shift off the edge
+       of the input image.
+
+  - What is /Same Padding/ in a convnet?  :: 
+
+       /Same Padding/ is when your patch does shift off the edge of
+       the input image, which case the input image is padded with
+       sufficient zeros around its border.
+
+  - Given our input layer with volume W, a filter with volume F, a stride of S, and a padding of P, what is the volume of the next layer?  :: 
+
+       \[ \frac{W-F+2P}{S+1} \]
+
+  - Given in input layer, what are the dimensions of the output layer?  ::
+
+       ~new_height = (input_height - filter_height + 2 * P)/S + 1~
+
+       ~new_width = (input_width - filter_width + 2 * P)/S + 1~
+
+  - How do you create a convolutional layer in TensorFlow?  :: 
+
+       #+BEGIN_SRC python
+       import tensorflow as tf
+       k_output = 64
+       image_width = 10
+       image_height = 10
+       color_channels = 3
+       filter_size_width = 5
+       filter_size_height = 5
+       # Input/Image
+       input = tf.placeholder(
+           tf.float32,
+           shape=[None, image_width, image_height, color_channels])
+       # Weight and bias
+       weight = tf.Variable(tf.truncated_normal(
+           [filter_size_width, filter_size_height, color_channels, k_output]))
+       bias = tf.Variable(tf.zeros(k_output))
+       conv_layer = tf.nn.conv2d(input, weight, strides=[1, 2, 2, 1], padding='SAME')
+       conv_layer = tf.nn.bias_add(conv_layer, bias)
+       conv_layer = tf.nn.relu(conv_layer)
+       #+END_SRC
+
+  - What are three ways to improve upon a simple convnet?  :: 
+
+    1. /Pooling/
+
+    2. /1x1 Convolutions/
+
+    3. /Inception/
+
+  - What is /Pooling/?  ::
+
+       Instead of reducing the spatial dimension from one layer to the
+       next simply with a large stride value, /pooling/ instead uses a
+       small stride value, but then combines the output of all of the
+       patches within a region in order to reduce the spatial
+       dimension.
+
+  - What are two kinds of pooling?  :: 
+
+    1. /Max Pooling/
+
+    2. /Average Pooling/
+
+  - What is /Max Pooling/?  ::
+
+       At every point in a feature map, look at a small neighborhood
+       around that point---on the feature map---and compute the
+       maximum of all the responses around it.
+
+  - What are the advantages of Max Pooling?  :: 
+
+    1. does not add additional parameters
+
+    2. more accurate and more resistant to overfitting
+
+  - What are the disadvantages of Max Pooling?  ::
+
+    1. does add more hyper-parameters (pooling region size, pooling
+       stride)
+
+    2. more expensive model to compute
+
+  - What is /Average Pooling/?  ::
+
+       Rather than take the maximum within a neighborhood of a pixel
+       in a feature map, instead take the average over that
+       neighborhood.
+
+  - How do you perform Max Pooling in TensorFlow?  ::
+
+       #+BEGIN_SRC python
+       import tensorflow as tf
+       conv_layer = tf.nn.conv2d(input, weight, strides=[1, 2, 2, 1], padding='SAME')
+       conv_layer = tf.nn.bias_add(conv_layer, bias)
+       conv_layer = tf.nn.relu(conv_layer)
+       conv_layer = tf.nn.max_pool(
+           conv_layer,
+           ksize=[1, 2, 2, 1],
+           strides=[1, 2, 2, 1],
+           padding='SAME')       
+       #+END_SRC
+
+  - What is a very typical architecture for a convnet?  ::
+
+       #+BEGIN_SRC ditaa :file convnet-arch.png
+       +--------------------------------------+
+       +cRED         Classifier               +
+       +--------------------------------------+
+       +cYEL         Fully Connected          +
+       +--------------------------------------+
+       +cYEL         Fully Connected          +
+       +--------------------------------------+
+       +cRED         Max Pooling              +
+       +--------------------------------------+
+       +cGRE         Convolution              +
+       +--------------------------------------+
+       +cRED         Max Pooling              +
+       +--------------------------------------+
+       +cGRE         Convolution              +
+       +--------------------------------------+
+       +cBLU         Image                    +
+       +--------------------------------------+
+       #+END_SRC
+
+  - What is a /1x1 Convolution/?  :: 
+
+       A /1x1 Convolution/ is an inexpensive way of adding additional
+       representational power to a convnet.
+
+  - What is a powerful general strategy for combining these techniques for convnets?  :: 
+
+       An /Inception Module/
+
+  - What is an /Inception Module/ :: 
+
+       Each layer concatenates the output of following sub-layers.
+
+    1. Average Pooling followed by 1x1
+
+    2. 1x1
+
+    3. 1x1 followed by 3x3
+
+    4. 1x1 followed by 5x5
 
 #  LocalWords:  ge lt infty MiniFlow TensorFlow Fukushima's Cun's tf
 #  LocalWords:  Neocognition LENET Krizhevsky's ALEXNET tensorflow Wx

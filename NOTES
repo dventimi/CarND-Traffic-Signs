@@ -1,5 +1,11 @@
 # -*- mode: org; -*-
 
+#+OPTIONS: toc:nil f:nil
+
+#+TITLE:  Nanodegree Program:  Self-Driving Car
+#+AUTHOR: David A. Ventimiglia
+#+EMAIL: dventimi@gmail.com
+
 * Introduction to Deep Learning Module
 * Regression and Classification
 * Neural Networks
@@ -23,8 +29,8 @@
        \begin{equation*}
        y =
        \begin{cases}
-       1 & if a \ge \theta, \\
-       0 & if a \lt \theta
+       1 & \text{if} a \ge \theta, \\
+       0 & \text{if} a \lt \theta
        \end{cases}
        \end{equation*}
 
@@ -496,6 +502,150 @@
        without requiring more data.
 
 * Deep Neural Networks
+
+  - What is a /RELU/?  ::
+
+       A /RELU/ is a /Rectified Linear Unit/, and is a very simple
+       non-linear function.
+
+       \begin{equation*}
+       y(x) = 
+       \begin{cases}
+       0, & x \le 0 \\
+       x, & x \gt 0
+       \end{cases}
+       \end{equation*}
+
+  - What is the derivative of a RELU?  :: 
+
+       \begin{equation*}
+       y(x) = 
+       \begin{cases}
+       0, & x \le 0 \\
+       1, & x \gt 0
+       \end{cases}
+       \end{equation*}
+
+  - What is the typical ratio of resources used (compute + memory) for the back-propagation step relative to the forward-propagation step in a modern neural network framework?  :: 
+
+       2:1
+
+  - What is the central idea of /Deep Neural Networks/?  :: 
+
+       Add more hidden layers rather than adding more neurons within
+       the hidden layers.
+
+  - What are some reasons to prefer deeper networks over wider networks?  :: 
+
+    1. Deep models tend to have greater computational efficiency.
+
+    2. Deep models naturally capture hierarchical structure in the
+       phenomena they model.
+
+  - How do you save the weights and biases of a model in TensorFlow?  ::
+
+       #+BEGIN_SRC python
+       saver = tensorflow.train.Saver()
+       sess = tensorflow.Session()
+       # Steps to train build and train the model
+       saver.save(sess, 'model.ckpt')
+       #+END_SRC
+
+  - How do you restore the weights and biases of a saved model in TensorFlow?  :: 
+
+       #+BEGIN_SRC python
+       # Remove the previous weights and bias
+       tensorflow.reset_default_graph()
+       # Two Variables: weights and bias (example)
+       weights = tensorflow.Variable(tensorflow.truncated_normal([2, 3]))
+       bias = tensorflow.Variable(tensorflow.truncated_normal([3]))
+       saver = tensorflow.train.Saver()
+       sess = tensorflow.Session()
+       saver.restore(sess, save_file)
+       #+END_SRC
+
+  - How do you cope with naming errors when restoring weights and biases into a new model?  :: 
+
+       Use the TensorFlow ~name~ named parameter when invoking
+       ~tensorflow.Variable~ to create the weights and biases, and use
+       the same names in the old model and in the new model.
+
+  - What are two reasons that deep models became effective only relatively recently?  :: 
+
+    1. Deep models are effective only with relatively large training
+       sets.  Large training sets only became available to the
+       academic community relatively recently.
+
+    2. Regularization
+
+  - What are two ways to prevent overfitting of a deep model?  ::
+
+    1. /Early Termination/
+
+    2. /Regularization/
+
+  - What is /Early Termination/?  ::
+
+       /Early Termination/ is when you stop training as soon as we
+       stop improving performance on the validation set.
+
+  - What is /Regularization/? :: 
+
+       /Regularization/ is applying artificial constraints on your
+       network that implicitly reduce the number of free parameters
+       while not making it more difficult to optimize.
+
+  - What are three types of regularization used in deep models?  ::
+
+    1. /L_2 Regularization/
+
+    2. /Dropout/
+
+  - What is /L_2 Regularization/?  :: 
+
+       /L_2 Regularization/ adds another term to the /loss/, which
+       penalizes large weights, typically by adding a termo containing
+       the /L_2 norm/ of the weights.
+
+       \[ \mathscr{L}' = \mathscr{L} + \beta \frac{1}{2} \|W\|_2^2 \]
+
+  - What is the /L_2 norm/?  :: 
+
+       The /L_2 norm/ is the sum of the squares of the individual
+       elements in a vector, multipled by $1/2$.
+
+  - What is the derivative of the /L_2 norm/ of a vector W?  :: 
+
+       W
+
+  - What is /Dropout/?  :: 
+
+       /Dropout/ is the practice of randomly setting some of the
+       activations (e.g., half of them) to 0, for each example that
+       trains the network, and scale the remaining activations by the
+       inverse factor (e.g., twice).  It promotes robustness by
+       forcing the network to learn redundant representations.
+
+  - What must you typically resort to doing if dropout fails to improve your deep network's performance?  :: 
+
+       Make a bigger model.
+
+  - How do you properly average the activations of a network trained with dropout, when performing evaluation?  :: 
+
+       Simply remove the dropouts and the corresponding scaling
+       factor.
+
+  - How do you perform dropout in TensorFlow?  :: 
+
+       #+BEGIN_SRC python
+       import tensorflow as tf
+       keep_prob = tf.placeholder(tf.float32) # probability to keep units
+       hidden_layer = tf.add(tf.matmul(features, weights[0]), biases[0])
+       hidden_layer = tf.nn.relu(hidden_layer)
+       hidden_layer = tf.nn.dropout(hidden_layer, keep_prob)
+       logits = tf.add(tf.matmul(hidden_layer, weights[1]), biases[1])       
+       #+END_SRC
+
 
 * Convolutional Neural Networks
 

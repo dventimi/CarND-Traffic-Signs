@@ -135,26 +135,42 @@ for i in range(epochs):
 # Implement improved neural net
 ################################################################################
 
-def conv(x, W, b, name=None):
-    return tf.nn.bias_add(tf.nn.conv2d(x, W, b, strides=[1, 1, 1, 1], padding='SAME'))
+# def conv(x, j, k, name=None):
+#     W = tf.Variable(tf.truncated_normal([5, 5, 1, 6]))
+#     b = tf.Variable(tf.zeros([k]))
+#     layer = tf.nn.bias_add(tf.nn.conv2d(x, W, b, strides=[1, 1, 1, 1], padding='SAME'))
+#     layer.W = w
+#     layer.b = b
+#     return layer
 
-def fullyconnected(x, W, b, name=None):
-    return tf.add(tf.matmul(tf.to_float(x), W), b, name=name)
+def connect(x, k):
+    W = tf.Variable(tf.truncated_normal([x.get_shape().as_list()[-1], k]))
+    b = tf.Variable(tf.zeros([k]))
+    layer = tf.add(tf.matmul(tf.to_float(x), W), b)
+    layer.W = W
+    layer.b = b
+    return layer
 
-def activation(x, name=None):
-    return tf.relu(x)
+def activate(x):
+    return tf.nn.relu(x)
 
-def flatten(x, name=None):
-    return tf.reshape(x, [-1, x.get_shape()[1].value*x.get_shape()[2].value], name=name)
+def flatten(x):
+    return tf.reshape(x, [-1, x.get_shape()[1].value*x.get_shape()[2].value])
 
-def unflatten(x, height, width, name=None):
+def unflatten(x, height, width):
     return tf.reshape(x, [-1, height, width, 1])
 
-def loss(logits, labels, name=None):
+def loss(logits, labels):
     return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits, labels))
 
-def onehot(indexes, n_classes, name=None):
+def onehot(indexes, n_classes):
     return tf.one_hot(indexes, n_classes)
+
+def model(x):
+    fc1 = connect(tf.to_float(flatten(x)), n_classes)
+    fc2 = connect(activate(fc1), n_classes)
+    last = fc2
+    return last
 
 epochs=1000
 batch_size = 100
@@ -162,19 +178,6 @@ learning_rate = 0.01
 
 x = tf.placeholder(tf.int32, [None, image_shape[0], image_shape[1]])
 y_ = tf.placeholder(tf.int32, [None])
-
-def model(x):
-    fc1_W = tf.Variable(tf.zeros([image_shape[0]*image_shape[1], n_classes]))
-    fc1_b = tf.Variable(tf.zeros([n_classes]))
-    fc1 = fullyconnected(tf.to_float(flatten(x)), fc1_W, fc1_b)
-    fc1.W = fc1_W
-    fc1.b = fc1_b
-    fc2_W = tf.Variable(tf.zeros([n_classes, n_classes]))
-    fc2_b = tf.Variable(tf.zeros([n_classes]))
-    y = fullyconnected(fc1, fc2_W, fc2_b)
-    y.W = fc2_W
-    y.b = fc2_b
-    return y
 
 y = model(x)
 

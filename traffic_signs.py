@@ -150,13 +150,16 @@ def fc(x, W, b, name=None):
 def flatten(x, name=None):
     return tf.reshape(x, [-1, x.get_shape()[1].value*x.get_shape()[2].value], name=name)
 
+def unflatten(x, height, width, name=None):
+    return tf.reshape(x, [-1, height, width, 1])
+
 def loss(logits, labels, name=None):
     return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits, labels))
 
 def onehot(indexes, n_classes, name=None):
     return tf.one_hot(indexes, n_classes)
 
-y = fc(tf.to_float(flatten(x)), W, b)
+y = fc(tf.to_float(flatten(unflatten(flatten(x), image_shape[0], image_shape[1]))), W, b)
 train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss(y, onehot(y_, n_classes)))
 init = tf.initialize_all_variables()
 sess = tf.Session()

@@ -144,6 +144,9 @@ y_ = tf.placeholder(tf.int32, [None])
 W = tf.Variable(tf.zeros([image_shape[0]*image_shape[1], n_classes]))
 b = tf.Variable(tf.zeros([n_classes]))
 
+def conv(x, W, b, name=None):
+    return tf.nn.bias_add(tf.nn.conv2d(x, W, b, strides=[1, 1, 1, 1], padding='SAME'))
+
 def fc(x, W, b, name=None):
     return tf.add(tf.matmul(tf.to_float(x), W), b, name=name)
 

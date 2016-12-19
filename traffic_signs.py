@@ -2,6 +2,7 @@
 import pickle
 import tensorflow as tf
 import cv2
+import pdb
 
 # from sklearn.model_selection import train_test_split
 
@@ -110,45 +111,52 @@ h = plt.hist(train['labels'], n_classes)
 # Implement basic neural net first
 ################################################################################
 
-epochs=1000
-batch_size = 100
-learning_rate = 0.01
-x = tf.placeholder(tf.int32, [None, image_shape[0], image_shape[1]])
-y_ = tf.placeholder(tf.int32, [None])
-W = tf.Variable(tf.zeros([image_shape[0]*image_shape[1], n_classes]))
-b = tf.Variable(tf.zeros([n_classes]))
-y = tf.matmul(tf.to_float(tf.reshape(x, [-1, image_shape[0]*image_shape[1]])), W)+b
-cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y, tf.one_hot(y_, n_classes)))
-train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(cross_entropy)
-init = tf.initialize_all_variables()
-sess = tf.Session()
-sess.run(init)
-for i in range(epochs):
-    for batch_xs, batch_ys in batches(batch_size, train['flat_features'], train['labels']):
-        sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
-    correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(tf.one_hot(y_, n_classes),1))
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    print(sess.run(accuracy, feed_dict={x: test['flat_features'], y_: test['labels']}))
+# epochs=1000
+# batch_size = 100
+# learning_rate = 0.01
+# x = tf.placeholder(tf.int32, [None, image_shape[0], image_shape[1]])
+# y_ = tf.placeholder(tf.int32, [None])
+# W = tf.Variable(tf.zeros([image_shape[0]*image_shape[1], n_classes]))
+# b = tf.Variable(tf.zeros([n_classes]))
+# y = tf.matmul(tf.to_float(tf.reshape(x, [-1, image_shape[0]*image_shape[1]])), W)+b
+# cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y, tf.one_hot(y_, n_classes)))
+# train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(cross_entropy)
+# init = tf.initialize_all_variables()
+# sess = tf.Session()
+# sess.run(init)
+# for i in range(epochs):
+#     for batch_xs, batch_ys in batches(batch_size, train['flat_features'], train['labels']):
+#         sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
+#     correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(tf.one_hot(y_, n_classes),1))
+#     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+#     print(sess.run(accuracy, feed_dict={x: test['flat_features'], y_: test['labels']}))
 
 
 ################################################################################
 # Implement improved neural net
 ################################################################################
 
-# def conv(x, j, k, name=None):
-#     W = tf.Variable(tf.truncated_normal([5, 5, 1, 6]))
-#     b = tf.Variable(tf.zeros([k]))
-#     layer = tf.nn.bias_add(tf.nn.conv2d(x, W, b, strides=[1, 1, 1, 1], padding='SAME'))
-#     layer.W = w
-#     layer.b = b
-#     return layer
+def pad(x):
+    return tf.pad(x, [[0, 0], [2, 2], [2, 2], [0, 0]], mode='CONSTANT')
 
-def connect(x, k):
-    W = tf.Variable(tf.truncated_normal([x.get_shape().as_list()[-1], k]))
+def convolve(x, j, k):
+    W = tf.Variable(tf.truncated_normal([5, 5, j, k]))
     b = tf.Variable(tf.zeros([k]))
-    layer = tf.add(tf.matmul(tf.to_float(x), W), b)
+    layer = tf.nn.bias_add(tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='VALID'), b)
     layer.W = W
     layer.b = b
+    # return x
+    return layer
+
+def pool(x):
+    return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
+
+def connect(x, k):
+    W = tf.Variable(tf.truncated_normal([x.get_shape().as_list()[-1], k]), trainable=True)
+    b = tf.Variable(tf.zeros([k]), trainable=True)
+    layer = tf.add(tf.matmul(tf.to_float(x), W), b)
+    # layer.W = W
+    # layer.b = b
     return layer
 
 def activate(x):
@@ -167,12 +175,22 @@ def onehot(indexes, n_classes):
     return tf.one_hot(indexes, n_classes)
 
 def model(x):
-    fc1 = connect(tf.to_float(flatten(x)), n_classes)
-    fc2 = connect(activate(fc1), n_classes)
-    last = fc2
-    return last
+    x = tf.to_float(x)
+    # x = unflatten(x, image_shape[0], image_shape[1])
+    # x = pad(x)
+    # cv1 = convolve(x, 1, 6)
+    # return cv1
+    # cv1 = activate(cv1)
+    # cv2 = convolve(cv1, 6, 16)
+    # cv2 = activate(cv2)
+    # fc1 = connect(flatten(cv2), 120)
+    fc1 = connect(flatten(x), 120)
+    return fc1
+    # fc2 = connect(activate(fc1), n_classes)
+    # last = cv1
+    # return last
 
-epochs=1000
+epochs=10
 batch_size = 100
 learning_rate = 0.01
 
@@ -185,10 +203,13 @@ train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss(y, o
 init = tf.initialize_all_variables()
 sess = tf.Session()
 sess.run(init)
-for i in range(epochs):
-    for batch_xs, batch_ys in batches(batch_size, train['flat_features'], train['labels']):
-        sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
-    correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(onehot(y_, n_classes),1))
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    print(sess.run(accuracy, feed_dict={x: test['flat_features'], y_: test['labels']}))
-    
+
+print(sess.run(model(x), feed_dict={x: train['flat_features'][:10,], y_:train['labels'][:10,]}).shape)
+
+# for i in range(epochs):
+#     for batch_xs, batch_ys in batches(batch_size, train['flat_features'], train['labels']):
+#         sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
+#     correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(onehot(y_, n_classes),1))
+#     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+#     print(sess.run(accuracy, feed_dict={x: test['flat_features'], y_: test['labels']}))
+

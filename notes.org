@@ -1,0 +1,161 @@
+#+TITLE: CarND Errata
+#+DATE: <2016-12-19 Mon>
+#+AUTHOR: David A. Ventimiglia
+#+EMAIL: dventimi@gmail.com
+#+EXCLUDE_TAGS: noexport
+#+HTML_CONTAINER: div
+#+HTML_DOCTYPE: xhtml-strict
+#+LANGUAGE: en
+#+OPTIONS: ':nil *:t -:t ::t <:t H:3 \n:nil ^:t arch:headline
+#+OPTIONS: author:t c:nil creator:comment d:(not "LOGBOOK") date:t
+#+OPTIONS: e:t email:nil f:t inline:t num:t p:nil pri:nil stat:t
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:nil
+#+OPTIONS: html-preamble:t html-scripts:t html-style:t
+#+OPTIONS: html5-fancy:nil tex:t
+#+OPTIONS: tags:t tasks:t tex:t timestamp:t toc:t todo:t |:t
+#+SELECT_TAGS: export
+
+* Neural Networks
+*** 16. Restriction Bias
+    In the video, Michael mentions "Restriction Bias" and "Inductive
+    Bias", two terms we haven't encountered yet.  He then says,
+    "Charles, can you remind us what 'Restriction Bias' is?"  It's
+    slightly unsettling because a student who watched the videos over
+    the course of several days might think they're forgetting an
+    earlier lesson.
+
+    Likewise, later in that same video Michael says that "This is
+    a...different property from other classes of supervised learning
+    algorithms we've looked at so far.  So, in a Decision Tree you
+    build up the Decision Tree and you may have overfit, but it is
+    what it is."  Except that, we haven't looked at any other classes
+    of supervised learning algorithms besides Logistic Regression and
+    definitely haven't encountered Decision Trees.
+
+    It's pretty obvious that these incongruities arise from the
+    integration of videos from a different class, but they do
+    interrupt the flow.  Perhaps an interstitial page could be added
+    that just mentions other classes of supervised learning
+    algorithms, without going into them, and maybe mentions
+    "Restriction Bias" and "Preference Bias" right before Charles and
+    Michael talk about these concepts.
+
+* Introduction to TensorFlow
+*** 35. Lab:  TensorFlow Neural Network
+    The ~lab.ipynb~ notebook for this lab sets up logits this way.
+
+    #+BEGIN_SRC python
+    logits = tf.matmul(features, weights) + biases
+    #+END_SRC
+
+    Why does it use the Python plus (~+~) operator rather than the
+    ~tf.add~ operation introduced earlier and which makes an
+    appearance again later?  It's probably a harmless shortcut, but
+    shortcuts like this can confuse students who are new to TensorFlow
+    and who are trying to build a mental model of how it works and how
+    to use it.
+* Deep Neural Networks
+*** 11. Deep Neural Network in TensorFlow
+    In the *Optimizer* section it has the following code, 
+
+    #+BEGIN_SRC python
+    # Define loss and optimizer
+    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits, y))
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(cost)
+    #+END_SRC
+
+    and the text says "This is the same optimization technique used in
+    the Intro to TensorFlow lab."  Not exactly.  This code uses the
+    ~tf.nn.softmax_cross_entropy_with_logits~ function, which we've
+    never seen before (though, we can guess what it is).  The "Intro
+    to TensorFlow Lab" used the ~tf.nn.softmax(logits)~ function and
+    calculated the cross-entropy "manually."
+* Convolutional Neural Networks
+*** 10. Quiz:  Convolutional Output Shape
+    In the *Setup* section the text says, "Recall the formula for
+    calculating the new height or width:" and gives these formulas.
+
+    #+BEGIN_EXAMPLE
+    new_height = (input_height - filter_height + 2 * P)/S + 1
+    new_width = (input_width - filter_width + 2 * P)/S + 1    
+    #+END_EXAMPLE
+
+    Again, that's not exactly correct.  The previous lesson
+    "9. Parameters" had this to say about sizing layers.
+
+    #+BEGIN_QUOTE
+    Given our input layer has a volume of ~W~, our filter has a volume
+    ~(height * width * depth)~ of ~F~, we have a stride of ~S~, and a
+    padding of ~P~, the following formula gives us the volume of the
+    next layer: ~(W−F+2P)/S+1~.
+    #+END_QUOTE
+
+    While a moment's reflection makes it easy to see the relationship
+    between the two formulas, it's not technically correct that we've
+    seen exactly this formula before.
+
+*** 11. Solution:  Convolution Output Shape
+    The *Solution* section defines the network with this code.
+
+    #+BEGIN_SRC python
+    conv = tf.nn.conv2d(input, filter_weights, strides, padding) + filter_bias
+    #+END_SRC
+
+    Again, the Python ~+~ operator makes an appearance, rather than
+    ~tf.add~.  Later, in *17. TensorFlow Convolution Layer*, we're
+    introduced to yet another way of incorporating bias, with
+    ~tf.nn.bias_add()~, though at least there the text says, "The
+    ~tf.nn.bias_add()~ function adds a 1-d bias to the last dimension
+    in a matrix." and with a link to the documentation we can read
+    about it ourselves.  
+
+    The text does make the distinction later, in *30. Convolutional
+    Network in TensorFlow*, where it says,
+
+    #+BEGIN_QUOTE
+    To make life easier, the code is using ~tf.nn.bias_add()~ to add the
+    bias. Using ~tf.add()~ doesn't work when the tensors aren't the same
+    shape.
+    #+END_QUOTE
+
+    Perhaps this explanation could be migrated to the earlier
+    section, 11.
+
+*** 22. Quiz:  Pooling Mechanics
+    In the *Setup* section the text says, "Recall the formula for
+    calculating the new height or width:", and provides these
+    formulas.
+
+    #+BEGIN_EXAMPLE
+    new_height = (input_height - filter_height)/S + 1
+    new_width = (input_width - filter_width)/S + 1    
+    #+END_EXAMPLE
+
+    These don't match any previous formulas we've seen, since the ~2 *
+    P~ term is gone.  It's easy to guess that since we're now talking
+    about /Max-Pooling/ that ~P = 0~, but technically we can't recall
+    the formulas as given.  A better approach would be to present the
+    actual formulas from earlier, with the ~P~ term, and then remind
+    the reader that ~P = 0~.  The ~P~ term makes a reappearance in the
+    versions of the formula given later, in *31. TensorFlow
+    Convolution Layer*.
+
+*** 30. Convolutional Network in TensorFlow
+    The example CNN sets up a fully-connected layer with this code.
+
+    #+BEGIN_SRC python
+    fc1 = tf.reshape(
+        conv3,
+        [-1, weights['fully_connected'].get_shape().as_list()[0]])
+    fc1 = tf.add(
+        tf.matmul(fc1, weights['fully_connected']),
+        biases['fully_connected'])
+    fc1 = tf.nn.tanh(fc1)
+    #+END_SRC
+
+    The ~tf.nn.tahh()~ function is one we've not seen before.  We can
+    guess---and the TensorFlow documentation seems to confirm
+    this---that it's just another activation function, an alternative
+    to ~tf.nn.relu()~, but the inconsistency is a bit jarring.
+
+#  LocalWords:  ipynb tf matmul conv fc

@@ -147,8 +147,8 @@ b = tf.Variable(tf.zeros([n_classes]))
 def fc(x, W, b, name=None):
     return tf.add(tf.matmul(tf.to_float(x), W), b, name=name)
 
-def flatten(x, length, name=None):
-    return tf.reshape(x, [-1, length], name=name)
+def flatten(x, name=None):
+    return tf.reshape(x, [-1, x.get_shape()[1].value*x.get_shape()[2].value], name=name)
 
 def loss(logits, labels, name=None):
     return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits, labels))
@@ -156,7 +156,7 @@ def loss(logits, labels, name=None):
 def onehot(indexes, n_classes, name=None):
     return tf.one_hot(indexes, n_classes)
 
-y = fc(tf.to_float(flatten(x, image_shape[0]*image_shape[1])), W, b)
+y = fc(tf.to_float(flatten(x)), W, b)
 train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss(y, onehot(y_, n_classes)))
 init = tf.initialize_all_variables()
 sess = tf.Session()
@@ -167,6 +167,7 @@ for i in range(epochs):
     correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(onehot(y_, n_classes),1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     print(sess.run(accuracy, feed_dict={x: test['flat_features'], y_: test['labels']}))
+
 
 
     

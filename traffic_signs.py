@@ -163,14 +163,20 @@ learning_rate = 0.01
 x = tf.placeholder(tf.int32, [None, image_shape[0], image_shape[1]])
 y_ = tf.placeholder(tf.int32, [None])
 
+def model(x):
+    fc1_W = tf.Variable(tf.zeros([image_shape[0]*image_shape[1], n_classes]))
+    fc1_b = tf.Variable(tf.zeros([n_classes]))
+    fc1 = fullyconnected(tf.to_float(flatten(x)), fc1_W, fc1_b)
+    fc1.W = fc1_W
+    fc1.b = fc1_b
+    fc2_W = tf.Variable(tf.zeros([n_classes, n_classes]))
+    fc2_b = tf.Variable(tf.zeros([n_classes]))
+    y = fullyconnected(fc1, fc2_W, fc2_b)
+    y.W = fc2_W
+    y.b = fc2_b
+    return y
 
-
-fc1_W = tf.Variable(tf.zeros([image_shape[0]*image_shape[1], n_classes]))
-fc1_b = tf.Variable(tf.zeros([n_classes]))
-fc1 = fullyconnected(tf.to_float(flatten(unflatten(flatten(x), image_shape[0], image_shape[1]))), fc1_W, fc1_b)
-fc2_W = tf.Variable(tf.zeros([image_shape[0]*image_shape[1], n_classes]))
-fc2_b = tf.Variable(tf.zeros([n_classes]))
-y = fullyconnected(tf.to_float(flatten(unflatten(flatten(x), image_shape[0], image_shape[1]))), fc2_W, fc2_b)
+y = model(x)
 
 train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss(y, onehot(y_, n_classes)))
 init = tf.initialize_all_variables()
@@ -182,3 +188,4 @@ for i in range(epochs):
     correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(onehot(y_, n_classes),1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     print(sess.run(accuracy, feed_dict={x: test['flat_features'], y_: test['labels']}))
+    

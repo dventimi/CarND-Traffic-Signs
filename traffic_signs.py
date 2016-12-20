@@ -4,7 +4,7 @@ import tensorflow as tf
 import cv2
 import pdb
 
-# from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split
 
 # TODO: Fill this in based on where you saved the training and testing data
 
@@ -133,34 +133,6 @@ h = plt.hist(train['labels'], n_classes)
 
 
 ################################################################################
-# Implement stock neural net
-################################################################################
-
-def LeNet(x):
-    x = tf.reshape(x, (-1, 32, 32, 1))                                                       # 2D->4D for convolutional and pooling layers
-    x = tf.pad(x, [[0, 0], [2, 2], [2, 2], [0, 0]], mode="CONSTANT")                         # Pad 0s->32x32, 2 rows/cols each side
-    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 1, 6)))                           # 32x32x6
-    conv1_b = tf.Variable(tf.zeros(6))
-    conv1 = tf.nn.conv2d(x, conv1_W, strides=[1, 1, 1, 1], padding='VALID') + conv1_b
-    conv1 = tf.nn.relu(conv1)
-    conv1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID') # 16x16x6
-    conv2_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16)))                          # 10x10x16
-    conv2_b = tf.Variable(tf.zeros(16))
-    conv2 = tf.nn.conv2d(conv1, conv2_W, strides=[1, 1, 1, 1], padding='VALID') + conv2_b
-    conv2 = tf.nn.relu(conv2)
-    conv2 = tf.nn.max_pool(conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID') # 5x5x16
-    fc1 = flatten(conv2)                                                                     # Flatten
-    fc1_shape = (fc1.get_shape().as_list()[-1], 120)                                         # (5 * 5 * 16, 120)
-    fc1_W = tf.Variable(tf.truncated_normal(shape=(fc1_shape)))
-    fc1_b = tf.Variable(tf.zeros(120))
-    fc1 = tf.matmul(fc1, fc1_W) + fc1_b
-    fc1 = tf.nn.relu(fc1)
-    fc2_W = tf.Variable(tf.truncated_normal(shape=(120, 10)))
-    fc2_b = tf.Variable(tf.zeros(10))
-    return tf.matmul(fc1, fc2_W) + fc2_b
-
-
-################################################################################
 # Implement improved neural net
 ################################################################################
 
@@ -171,9 +143,6 @@ def convolve(x, j, k):
     W = tf.Variable(tf.truncated_normal([5, 5, j, k]))
     b = tf.Variable(tf.zeros([k]))
     layer = tf.nn.bias_add(tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='VALID'), b)
-    layer.W = W
-    layer.b = b
-    # return x
     return layer
 
 def pool(x):
@@ -183,8 +152,6 @@ def connect(x, k):
     W = tf.Variable(tf.truncated_normal([x.get_shape().as_list()[-1], k]), trainable=True)
     b = tf.Variable(tf.zeros([k]), trainable=True)
     layer = tf.add(tf.matmul(tf.to_float(x), W), b)
-    # layer.W = W
-    # layer.b = b
     return layer
 
 def activate(x):
@@ -213,7 +180,7 @@ def model(x):
     fc1 = connect(flatten(cv2), 120)
     fc1 = connect(flatten(x), 120)
     fc2 = connect(activate(fc1), n_classes)
-    last = cv1
+    last = fc2
     return last
 
 epochs=10
@@ -221,20 +188,22 @@ batch_size = 100
 learning_rate = 0.01
 
 x = tf.placeholder(tf.int32, [None, image_shape[0], image_shape[1]])
-y_ = tf.placeholder(tf.int32, [None, n_classes])
+y_ = tf.placeholder(tf.int32, [None])
 
 y = model(x)
 
-train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss(y, onehot(y_, n_classes)))
+training = tf.train.AdamOptimizer().minimize(loss(y, onehot(y_, n_classes)))
 sess = tf.Session()
 sess.run(tf.initialize_all_variables())
 
 print(sess.run(y, feed_dict={x: train['flat_features'][:10,]}))
 
-# for i in range(epochs):
-#     for batch_xs, batch_ys in batches(batch_size, train['flat_features'], train['labels']):
-#         sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
-#     correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(onehot(y_, n_classes),1))
-#     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-#     print(sess.run(accuracy, feed_dict={x: test['flat_features'], y_: test['labels']}))
+print(sess.run(training, feed_dict={x: train['flat_features'][:10,], y_: train['labels'][:10]}))
+
+for i in range(epochs):
+    for batch_xs, batch_ys in batches(batch_size, train['flat_features'], train['labels']):
+        sess.run(training, feed_dict={x: batch_xs, y_: batch_ys})
+    correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(onehot(y_, n_classes),1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    print(sess.run(accuracy, feed_dict={x: test['flat_features'], y_: test['labels']}))
 

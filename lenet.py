@@ -35,7 +35,7 @@ image_shape = X_train.shape[1:]
 # from the maximum label value and adding 1 (because both the min
 # value AND the max value are represented among the labels).
 
-n_classes = max(X_train)-min(X_train)+1
+n_classes = max(y_train)-min(y_train)+1
 
 # However, by doing this we implicitly assume that every possible
 # label (i.e., integer) in that interval is represented in the training
@@ -43,7 +43,7 @@ n_classes = max(X_train)-min(X_train)+1
 # to count the number of unique elements within set of labels.
 
 import numpy as np
-n_classes = len(np.unique(X_train))
+n_classes = len(np.unique(y_train))
 
 print("Number of training examples =", n_train)
 print("Number of testing examples =", n_test)
@@ -113,7 +113,7 @@ def LeNet(x):
     # SOLUTION: Pooling. Input = 28x28x6. Output = 14x14x6.
     conv1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
 
-    # SOLUTION: Layer 2: Convolutional. Output = 10x10x16.
+    # SOLUTION: Layer 2: Convolutional. Output = 43x43x16.
     conv2_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16), mean = mu, stddev = sigma))
     conv2_b = tf.Variable(tf.zeros(16))
     conv2   = tf.nn.conv2d(conv1, conv2_W, strides=[1, 1, 1, 1], padding='VALID') + conv2_b
@@ -121,7 +121,7 @@ def LeNet(x):
     # SOLUTION: Activation.
     conv2 = tf.nn.relu(conv2)
 
-    # SOLUTION: Pooling. Input = 10x10x16. Output = 5x5x16.
+    # SOLUTION: Pooling. Input = 43x43x16. Output = 5x5x16.
     conv2 = tf.nn.max_pool(conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
 
     # SOLUTION: Flatten. Input = 5x5x16. Output = 400.
@@ -143,9 +143,9 @@ def LeNet(x):
     # SOLUTION: Activation.
     fc2    = tf.nn.relu(fc2)
 
-    # SOLUTION: Layer 5: Fully Connected. Input = 84. Output = 10.
-    fc3_W  = tf.Variable(tf.truncated_normal(shape=(84, 10), mean = mu, stddev = sigma))
-    fc3_b  = tf.Variable(tf.zeros(10))
+    # SOLUTION: Layer 5: Fully Connected. Input = 84. Output = 43.
+    fc3_W  = tf.Variable(tf.truncated_normal(shape=(84, 43), mean = mu, stddev = sigma))
+    fc3_b  = tf.Variable(tf.zeros(43))
     logits = tf.matmul(fc2, fc3_W) + fc3_b
     
     return logits
@@ -153,7 +153,7 @@ def LeNet(x):
 
 x = tf.placeholder(tf.float32, (None, 32, 32, 3))
 y = tf.placeholder(tf.int32, (None))
-one_hot_y = tf.one_hot(y, 10)
+one_hot_y = tf.one_hot(y, n_classes)
 
 rate = 0.001
 

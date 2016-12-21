@@ -7,3 +7,6 @@ models
 *.html
 *.png
 *.epub
+lenet
+*.meta
+checkpoint

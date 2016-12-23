@@ -58,9 +58,9 @@ with open(testing_file, mode='rb') as f:
 X_train, y_train = train['features'], train['labels']
 X_test, y_test = test['features'], test['labels']
 n_train = X_train.shape[0]
-n_test = y_train.shape[0]
+n_test = X_test.shape[0]
 image_shape = X_train.shape[1:]
-n_classes = len(np.unique(y_train))
+n_classes = len(np.unique(train['labels']))
 
 percent_train = 0.01
 
@@ -68,6 +68,7 @@ X_train, y_train           = train['features'][0:math.floor(n_train*percent_trai
 X_validation, y_validation = train['features'][math.floor(n_train*(1.0-percent_train)):,], train['labels'][math.floor(n_train*(1.0-percent_train)):,]
 n_train = X_train.shape[0]
 n_validation = X_validation.shape[0]
+n_test = X_test.shape[0]
 
 assert(len(X_train) == len(y_train))
 assert(len(X_validation) == len(y_validation))
@@ -145,7 +146,7 @@ def LeNet(x, n_classes):
 
 ################################################################################
 
-x = tf.placeholder(tf.float32, (None, 32, 32, 3))
+x = tf.placeholder(tf.float32, (None,) + X_train.shape[1:])
 y = tf.placeholder(tf.int32, (None))
 one_hot_y = tf.one_hot(y, n_classes)
 
@@ -195,7 +196,7 @@ with tf.Session() as sess:
         training_accuracy = evaluate(X_train, y_train)
         validation_accuracy = evaluate(X_validation, y_validation)
         print("EPOCH {} ...".format(i+1))
-        print("Validation Accuracy = {:.3f}".format(validation_accuracy))
+        # print("Validation Accuracy = {:.3f}".format(validation_accuracy))
         print("Training Accuracy = {:.3f}".format(training_accuracy))
         print()
         

@@ -197,7 +197,7 @@ with tf.Session() as sess:
         training_accuracy = evaluate(X_train, y_train)
         validation_accuracy = evaluate(X_validation, y_validation)
         print("EPOCH {} ...".format(i+1))
-        print("Validation Accuracy = {:.3f}".format(validation_accuracy))
+        # print("Validation Accuracy = {:.3f}".format(validation_accuracy))
         print("Training Accuracy = {:.3f}".format(training_accuracy))
         print()
         

@@ -15,7 +15,7 @@ import tensorflow as tf
 # Define architecture
 ################################################################################
 
-EPOCHS = 10
+EPOCHS = 100
 BATCH_SIZE = 100
 MU = 0
 SIGMA = 0.1
@@ -80,8 +80,10 @@ n_classes = len(np.unique(y_train))
 # Pre-process data
 ################################################################################
 
-X_train, y_train           = train['features'][0:math.floor(n_train*0.9),], train['labels'][0:math.floor(n_train*0.9),]
-X_validation, y_validation = train['features'][math.floor(n_train*0.9):,], train['labels'][math.floor(n_train*0.9):,]
+percent_train = 0.01
+
+X_train, y_train           = train['features'][0:math.floor(n_train*percent_train),], train['labels'][0:math.floor(n_train*percent_train),]
+X_validation, y_validation = train['features'][math.floor(n_train*(1.0-percent_train)):,], train['labels'][math.floor(n_train*(1.0-percent_train)):,]
 n_train = X_train.shape[0]
 n_validation = X_validation.shape[0]
 
@@ -124,14 +126,16 @@ with tf.Session() as sess:
     print("Training...")
     print()
     for i in range(EPOCHS):
-        X_train, y_train = shuffle(X_train, y_train)
+        # X_train, y_train = shuffle(X_train, y_train)
         for offset in range(0, num_examples, BATCH_SIZE):
             end = offset + BATCH_SIZE
             batch_x, batch_y = X_train[offset:end], y_train[offset:end]
             sess.run(training_operation, feed_dict={x: batch_x, y: batch_y})
         validation_accuracy = evaluate(X_validation, y_validation)
+        training_accuracy = evaluate(X_train, y_train)
         print("EPOCH {} ...".format(i+1))
         print("Validation Accuracy = {:.3f}".format(validation_accuracy))
+        print("Training Accuracy = {:.3f}".format(training_accuracy))
         print()
     try:
         saver

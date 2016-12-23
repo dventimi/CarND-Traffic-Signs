@@ -140,6 +140,7 @@ def LeNet(x, n_classes):
     fc3_W  = tf.Variable(tf.truncated_normal(shape=(84, n_classes), mean = MU, stddev = SIGMA))
     fc3_b  = tf.Variable(tf.zeros(n_classes))
     logits = tf.matmul(fc2, fc3_W) + fc3_b
+    
     return logits
 
 ################################################################################
@@ -181,6 +182,7 @@ with tf.Session() as sess:
     # sess.run(tf.initialize_all_variables())
     sess.run(tf.global_variables_initializer())
     num_examples = len(X_train)
+    
     print("Training...")
     print()
     for i in range(EPOCHS):
@@ -189,17 +191,28 @@ with tf.Session() as sess:
             end = offset + BATCH_SIZE
             batch_x, batch_y = X_train[offset:end], y_train[offset:end]
             sess.run(training_operation, feed_dict={x: batch_x, y: batch_y})
-        validation_accuracy = evaluate(X_validation, y_validation)
+            
         training_accuracy = evaluate(X_train, y_train)
+        validation_accuracy = evaluate(X_validation, y_validation)
         print("EPOCH {} ...".format(i+1))
-        # print("Validation Accuracy = {:.3f}".format(validation_accuracy))
+        print("Validation Accuracy = {:.3f}".format(validation_accuracy))
         print("Training Accuracy = {:.3f}".format(training_accuracy))
         print()
+        
     try:
         saver
     except NameError:
         saver = tf.train.Saver()
     saver.save(sess, 'lenet')
     print("Model saved")
+
+################################################################################
+
+with tf.Session() as sess:
+    loader = tf.train.import_meta_graph('lenet.meta')
+    loader.restore(sess, tf.train.latest_checkpoint('./'))
+
+    test_accuracy = evaluate(X_test, y_test)
+    print("Test Accuracy = {:.3f}".format(test_accuracy))
 
 ################################################################################

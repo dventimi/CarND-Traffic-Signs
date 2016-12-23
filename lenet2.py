@@ -82,6 +82,8 @@ print("Training Set:   {} samples".format(len(X_train)))
 print("Validation Set: {} samples".format(len(X_validation)))
 print("Test Set:       {} samples".format(len(X_test)))
 
+################################################################################
+
 EPOCHS = 10
 BATCH_SIZE = 128
 MU = 0
@@ -164,6 +166,8 @@ training_operation = optimizer.minimize(loss_operation)
 correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
 accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
+################################################################################
+
 def evaluate(X_data, y_data):
     num_examples = len(X_data)
     total_accuracy = 0
@@ -193,8 +197,8 @@ with tf.Session() as sess:
         training_accuracy = evaluate(X_train, y_train)
         validation_accuracy = evaluate(X_validation, y_validation)
         print("EPOCH {} ...".format(i+1))
-        print("Training Accuracy = {:.3f}".format(validation_accuracy))
-        # print("Validation Accuracy = {:.3f}".format(validation_accuracy))
+        print("Validation Accuracy = {:.3f}".format(validation_accuracy))
+        print("Training Accuracy = {:.3f}".format(training_accuracy))
         print()
         
     try:

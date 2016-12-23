@@ -11,3 +11,5 @@ lenet
 *.meta
 checkpoint
 MNIST_data
+lenet.index
+lenet.data*

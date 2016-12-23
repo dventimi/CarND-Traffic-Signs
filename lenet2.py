@@ -24,6 +24,11 @@ print("Training Set:   {} samples".format(len(X_train)))
 print("Validation Set: {} samples".format(len(X_validation)))
 print("Test Set:       {} samples".format(len(X_test)))
 
+EPOCHS = 10
+BATCH_SIZE = 128
+MU = 0
+SIGMA = 0.1
+
 ################################################################################
 
 import numpy as np
@@ -38,6 +43,8 @@ print("Updated Image Shape: {}".format(X_train[0].shape))
 ################################################################################
 
 import pickle
+import math
+
 training_file = '../train.p'
 testing_file = '../test.p'
 
@@ -51,13 +58,9 @@ X_test, y_test = test['features'], test['labels']
 n_train = X_train.shape[0]
 n_test = X_test.shape[0]
 image_shape = X_train.shape[1:]
-n_classes = len(np.unique(y_train))
+n_classes = len(np.unique(train['labels']))
 
-################################################################################
-
-import math
-
-train_fraction = 0.10
+train_fraction = 0.01
 partition = math.floor(train['features'].shape[0]*train_fraction)
 
 X_train, y_train = train['features'][0:partition,], train['labels'][0:partition,]
@@ -65,8 +68,6 @@ X_validation, y_validation = train['features'][partition:,], train['labels'][par
 n_train = X_train.shape[0]
 n_validation = X_validation.shape[0]
 n_test = X_test.shape[0]
-image_shape = X_train.shape[1:]
-n_classes = len(np.unique(y_train))
 
 assert(len(X_train) == len(y_train))
 assert(len(X_validation) == len(y_validation))
@@ -79,6 +80,11 @@ print("Training Set:   {} samples".format(len(X_train)))
 print("Validation Set: {} samples".format(len(X_validation)))
 print("Test Set:       {} samples".format(len(X_test)))
 
+EPOCHS = 100
+BATCH_SIZE = 128
+MU = 0
+SIGMA = 0.1
+
 ################################################################################
 
 from sklearn.utils import shuffle
@@ -89,21 +95,14 @@ X_train, y_train = shuffle(X_train, y_train)
 
 import tensorflow as tf
 
-EPOCHS = 100
-BATCH_SIZE = 128
-
 ################################################################################
 
 from tensorflow.contrib.layers import flatten
 
 def LeNet(x, n_classes):    
-    # Hyperparameters
-    mu = 0
-    sigma = 0.1
-    
     # SOLUTION: Layer 1: Convolutional. Input = 32x32xinput_channels. Output = 28x28x6.
     input_channels = x.get_shape()[3].value
-    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, input_channels, 6), mean = mu, stddev = sigma))
+    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, input_channels, 6), mean = MU, stddev = SIGMA))
     conv1_b = tf.Variable(tf.zeros(6))
     conv1   = tf.nn.conv2d(x, conv1_W, strides=[1, 1, 1, 1], padding='VALID') + conv1_b
 
@@ -114,7 +113,7 @@ def LeNet(x, n_classes):
     conv1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
 
     # SOLUTION: Layer 2: Convolutional. Output = 10x10x16.
-    conv2_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16), mean = mu, stddev = sigma))
+    conv2_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16), mean = MU, stddev = SIGMA))
     conv2_b = tf.Variable(tf.zeros(16))
     conv2   = tf.nn.conv2d(conv1, conv2_W, strides=[1, 1, 1, 1], padding='VALID') + conv2_b
     
@@ -128,7 +127,7 @@ def LeNet(x, n_classes):
     fc0   = flatten(conv2)
     
     # SOLUTION: Layer 3: Fully Connected. Input = 400. Output = 120.
-    fc1_W = tf.Variable(tf.truncated_normal(shape=(400, 120), mean = mu, stddev = sigma))
+    fc1_W = tf.Variable(tf.truncated_normal(shape=(400, 120), mean = MU, stddev = SIGMA))
     fc1_b = tf.Variable(tf.zeros(120))
     fc1   = tf.matmul(fc0, fc1_W) + fc1_b
     
@@ -136,7 +135,7 @@ def LeNet(x, n_classes):
     fc1    = tf.nn.relu(fc1)
 
     # SOLUTION: Layer 4: Fully Connected. Input = 120. Output = 84.
-    fc2_W  = tf.Variable(tf.truncated_normal(shape=(120, 84), mean = mu, stddev = sigma))
+    fc2_W  = tf.Variable(tf.truncated_normal(shape=(120, 84), mean = MU, stddev = SIGMA))
     fc2_b  = tf.Variable(tf.zeros(84))
     fc2    = tf.matmul(fc1, fc2_W) + fc2_b
     
@@ -144,7 +143,7 @@ def LeNet(x, n_classes):
     fc2    = tf.nn.relu(fc2)
 
     # SOLUTION: Layer 5: Fully Connected. Input = 84. Output = n_classes.
-    fc3_W  = tf.Variable(tf.truncated_normal(shape=(84, n_classes), mean = mu, stddev = sigma))
+    fc3_W  = tf.Variable(tf.truncated_normal(shape=(84, n_classes), mean = MU, stddev = SIGMA))
     fc3_b  = tf.Variable(tf.zeros(n_classes))
     logits = tf.matmul(fc2, fc3_W) + fc3_b
     
@@ -201,7 +200,7 @@ with tf.Session() as sess:
         validation_accuracy = evaluate(X_validation, y_validation)
         print("EPOCH {} ...".format(i+1))
         print("Training Accuracy = {:.3f}".format(validation_accuracy))
-        print("Validation Accuracy = {:.3f}".format(validation_accuracy))
+        # print("Validation Accuracy = {:.3f}".format(validation_accuracy))
         print()
         
     try:

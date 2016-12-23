@@ -80,7 +80,7 @@ print("Training Set:   {} samples".format(len(X_train)))
 print("Validation Set: {} samples".format(len(X_validation)))
 print("Test Set:       {} samples".format(len(X_test)))
 
-EPOCHS = 100
+EPOCHS = 10
 BATCH_SIZE = 128
 MU = 0
 SIGMA = 0.1
@@ -89,7 +89,7 @@ SIGMA = 0.1
 
 from sklearn.utils import shuffle
 
-X_train, y_train = shuffle(X_train, y_train)
+# X_train, y_train = shuffle(X_train, y_train)
 
 ################################################################################
 

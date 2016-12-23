@@ -15,8 +15,8 @@ import tensorflow as tf
 # Define architecture
 ################################################################################
 
-EPOCHS = 100
-BATCH_SIZE = 100
+EPOCHS = 10
+BATCH_SIZE = 128
 MU = 0
 SIGMA = 0.1
 
@@ -140,7 +140,8 @@ def evaluate(X_data, y_data):
     return total_accuracy / num_examples
 
 with tf.Session() as sess:
-    sess.run(tf.initialize_all_variables())
+    # sess.run(tf.initialize_all_variables())
+    sess.run(tf.global_variables_initializer())
     num_examples = len(X_train)
     print("Training...")
     print()

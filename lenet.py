@@ -1,24 +1,97 @@
 ################################################################################
-# Import modules
-################################################################################
 
 from sklearn.utils import shuffle
 from tensorflow.contrib.layers import flatten
+from tensorflow.examples.tutorials.mnist import input_data
 import math
-import matplotlib.pyplot as plt
 import numpy as np
 import pickle
-import random
 import tensorflow as tf
 
 ################################################################################
-# Define architecture
+
+mnist = input_data.read_data_sets("MNIST_data/", reshape=False)
+X_train, y_train           = mnist.train.images, mnist.train.labels
+X_validation, y_validation = mnist.validation.images, mnist.validation.labels
+X_test, y_test             = mnist.test.images, mnist.test.labels
+n_train = X_train.shape[0]
+n_validation = X_validation.shape[0]
+n_test = X_test.shape[0]
+image_shape = X_train.shape[1:]
+n_classes = len(np.unique(y_train))
+
+assert(len(X_train) == len(y_train))
+assert(len(X_validation) == len(y_validation))
+assert(len(X_test) == len(y_test))
+
+print()
+print("Image Shape: {}".format(X_train[0].shape))
+print()
+print("Training Set:   {} samples".format(len(X_train)))
+print("Validation Set: {} samples".format(len(X_validation)))
+print("Test Set:       {} samples".format(len(X_test)))
+
+EPOCHS = 10
+BATCH_SIZE = 128
+MU = 0
+SIGMA = 0.1
+
+################################################################################
+
+# Pad images with 0s
+X_train      = np.pad(X_train, ((0,0),(2,2),(2,2),(0,0)), 'constant')
+X_validation = np.pad(X_validation, ((0,0),(2,2),(2,2),(0,0)), 'constant')
+X_test       = np.pad(X_test, ((0,0),(2,2),(2,2),(0,0)), 'constant')
+    
+print("Updated Image Shape: {}".format(X_train[0].shape))
+
+################################################################################
+
+training_file = '../train.p'
+testing_file = '../test.p'
+
+with open(training_file, mode='rb') as f:
+    train = pickle.load(f)
+with open(testing_file, mode='rb') as f:
+    test = pickle.load(f)
+    
+X_train, y_train = train['features'], train['labels']
+X_test, y_test = test['features'], test['labels']
+n_train = X_train.shape[0]
+n_test = y_train.shape[0]
+image_shape = X_train.shape[1:]
+n_classes = len(np.unique(y_train))
+
+percent_train = 0.01
+
+X_train, y_train           = train['features'][0:math.floor(n_train*percent_train),], train['labels'][0:math.floor(n_train*percent_train),]
+X_validation, y_validation = train['features'][math.floor(n_train*(1.0-percent_train)):,], train['labels'][math.floor(n_train*(1.0-percent_train)):,]
+n_train = X_train.shape[0]
+n_validation = X_validation.shape[0]
+
+assert(len(X_train) == len(y_train))
+assert(len(X_validation) == len(y_validation))
+assert(len(X_test) == len(y_test))
+
+print()
+print("Image Shape: {}".format(X_train[0].shape))
+print()
+print("Training Set:   {} samples".format(len(X_train)))
+print("Validation Set: {} samples".format(len(X_validation)))
+print("Test Set:       {} samples".format(len(X_test)))
+
 ################################################################################
 
 EPOCHS = 10
 BATCH_SIZE = 128
 MU = 0
 SIGMA = 0.1
+
+################################################################################
+
+# X_train, y_train = shuffle(X_train, y_train)
+
+################################################################################
 
 def LeNet(x, n_classes):    
     # SOLUTION: Layer 1: Convolutional. Input = 32x32xinput_channels. Output = 28x28x6.
@@ -70,53 +143,12 @@ def LeNet(x, n_classes):
     return logits
 
 ################################################################################
-# Load data
-################################################################################
-
-training_file = '../train.p'
-testing_file = '../test.p'
-
-with open(training_file, mode='rb') as f:
-    train = pickle.load(f)
-with open(testing_file, mode='rb') as f:
-    test = pickle.load(f)
-    
-X_train, y_train = train['features'], train['labels']
-X_test, y_test = test['features'], test['labels']
-n_train = X_train.shape[0]
-n_test = y_train.shape[0]
-image_shape = X_train.shape[1:]
-n_classes = len(np.unique(y_train))
-
-################################################################################
-# Pre-process data
-################################################################################
-
-percent_train = 0.01
-
-X_train, y_train           = train['features'][0:math.floor(n_train*percent_train),], train['labels'][0:math.floor(n_train*percent_train),]
-X_validation, y_validation = train['features'][math.floor(n_train*(1.0-percent_train)):,], train['labels'][math.floor(n_train*(1.0-percent_train)):,]
-n_train = X_train.shape[0]
-n_validation = X_validation.shape[0]
-
-assert(len(X_train) == len(y_train))
-assert(len(X_validation) == len(y_validation))
-assert(len(X_test) == len(y_test))
-
-print()
-print("Image Shape: {}".format(X_train[0].shape))
-print()
-print("Training Set:   {} samples".format(len(X_train)))
-print("Validation Set: {} samples".format(len(X_validation)))
-print("Test Set:       {} samples".format(len(X_test)))
-
-################################################################################
-# Set up model
-################################################################################
 
 x = tf.placeholder(tf.float32, (None, 32, 32, 3))
 y = tf.placeholder(tf.int32, (None))
 one_hot_y = tf.one_hot(y, n_classes)
+
+################################################################################
 
 rate = 0.001
 
@@ -126,8 +158,12 @@ loss_operation = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdamOptimizer(learning_rate = rate)
 training_operation = optimizer.minimize(loss_operation)
 
+################################################################################
+
 correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
 accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
+################################################################################
 
 def evaluate(X_data, y_data):
     num_examples = len(X_data)
@@ -138,6 +174,8 @@ def evaluate(X_data, y_data):
         accuracy = sess.run(accuracy_operation, feed_dict={x: batch_x, y: batch_y})
         total_accuracy += (accuracy * len(batch_x))
     return total_accuracy / num_examples
+
+################################################################################
 
 with tf.Session() as sess:
     # sess.run(tf.initialize_all_variables())
@@ -163,3 +201,5 @@ with tf.Session() as sess:
         saver = tf.train.Saver()
     saver.save(sess, 'lenet')
     print("Model saved")
+
+################################################################################

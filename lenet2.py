@@ -1,7 +1,14 @@
 ################################################################################
 
+from sklearn.utils import shuffle
+from tensorflow.contrib.layers import flatten
 from tensorflow.examples.tutorials.mnist import input_data
+import math
 import numpy as np
+import pickle
+import tensorflow as tf
+
+################################################################################
 
 mnist = input_data.read_data_sets("MNIST_data/", reshape=False)
 X_train, y_train           = mnist.train.images, mnist.train.labels
@@ -31,8 +38,6 @@ SIGMA = 0.1
 
 ################################################################################
 
-import numpy as np
-
 # Pad images with 0s
 X_train      = np.pad(X_train, ((0,0),(2,2),(2,2),(0,0)), 'constant')
 X_validation = np.pad(X_validation, ((0,0),(2,2),(2,2),(0,0)), 'constant')
@@ -41,9 +46,6 @@ X_test       = np.pad(X_test, ((0,0),(2,2),(2,2),(0,0)), 'constant')
 print("Updated Image Shape: {}".format(X_train[0].shape))
 
 ################################################################################
-
-import pickle
-import math
 
 training_file = '../train.p'
 testing_file = '../test.p'
@@ -87,17 +89,9 @@ SIGMA = 0.1
 
 ################################################################################
 
-from sklearn.utils import shuffle
-
 # X_train, y_train = shuffle(X_train, y_train)
 
 ################################################################################
-
-import tensorflow as tf
-
-################################################################################
-
-from tensorflow.contrib.layers import flatten
 
 def LeNet(x, n_classes):    
     # SOLUTION: Layer 1: Convolutional. Input = 32x32xinput_channels. Output = 28x28x6.

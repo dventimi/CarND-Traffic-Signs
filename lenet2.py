@@ -57,7 +57,7 @@ n_classes = len(np.unique(y_train))
 
 import math
 
-train_fraction = 0.90
+train_fraction = 0.10
 partition = math.floor(train['features'].shape[0]*train_fraction)
 
 X_train, y_train = train['features'][0:partition,], train['labels'][0:partition,]
@@ -89,7 +89,7 @@ X_train, y_train = shuffle(X_train, y_train)
 
 import tensorflow as tf
 
-EPOCHS = 10
+EPOCHS = 100
 BATCH_SIZE = 128
 
 ################################################################################

@@ -52,7 +52,8 @@ def LeNet(x):
     sigma = 0.1
     
     # SOLUTION: Layer 1: Convolutional. Input = 32x32x1. Output = 28x28x6.
-    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 1, 6), mean = mu, stddev = sigma))
+    input_channels = x.get_shape()[3].value
+    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, input_channels, 6), mean = mu, stddev = sigma))
     conv1_b = tf.Variable(tf.zeros(6))
     conv1   = tf.nn.conv2d(x, conv1_W, strides=[1, 1, 1, 1], padding='VALID') + conv1_b
 

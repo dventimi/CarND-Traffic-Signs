@@ -10,3 +10,4 @@ models
 lenet
 *.meta
 checkpoint
+MNIST_data

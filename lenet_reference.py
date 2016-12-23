@@ -1,4 +1,8 @@
 ################################################################################
+# DO NOT CHANGE THIS FILE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+################################################################################
+
+################################################################################
 
 from tensorflow.examples.tutorials.mnist import input_data
 
@@ -133,8 +137,8 @@ def evaluate(X_data, y_data):
 ################################################################################
 
 with tf.Session() as sess:
-    # sess.run(tf.global_variables_initializer())
-    sess.run(tf.initialize_all_variables())
+    sess.run(tf.global_variables_initializer())
+    # sess.run(tf.initialize_all_variables())
     num_examples = len(X_train)
     
     print("Training...")

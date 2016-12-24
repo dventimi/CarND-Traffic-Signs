@@ -199,20 +199,20 @@ with tf.Session() as sess:
         print("Training Accuracy = {:.3f}".format(evaluate(X_train, y_train)))
         print()
         
-    try:
-        saver
-    except NameError:
-        saver = tf.train.Saver()
-    saver.save(sess, 'lenet')
-    print("Model saved")
+    # try:
+    #     saver
+    # except NameError:
+    #     saver = tf.train.Saver()
+    # saver.save(sess, 'lenet')
+    # print("Model saved")
 
 ################################################################################
 
-with tf.Session() as sess:
-    loader = tf.train.import_meta_graph('lenet.meta')
-    loader.restore(sess, tf.train.latest_checkpoint('./'))
+# with tf.Session() as sess:
+#     loader = tf.train.import_meta_graph('lenet.meta')
+#     loader.restore(sess, tf.train.latest_checkpoint('./'))
 
-    test_accuracy = evaluate(X_test, y_test)
-    print("Test Accuracy = {:.3f}".format(test_accuracy))
+#     test_accuracy = evaluate(X_test, y_test)
+#     print("Test Accuracy = {:.3f}".format(test_accuracy))
 
 ################################################################################

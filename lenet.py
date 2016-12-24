@@ -62,10 +62,11 @@ n_test = X_test.shape[0]
 image_shape = X_train.shape[1:]
 n_classes = len(np.unique(train['labels']))
 
-percent_train = 0.01
+train_fraction = 0.01
+partition = math.floor(train['features'].shape[0]*train_fraction)
 
-X_train, y_train           = train['features'][0:math.floor(n_train*percent_train),], train['labels'][0:math.floor(n_train*percent_train),]
-X_validation, y_validation = train['features'][math.floor(n_train*(1.0-percent_train)):,], train['labels'][math.floor(n_train*(1.0-percent_train)):,]
+X_train, y_train = train['features'][0:partition,], train['labels'][0:partition,]
+X_validation, y_validation = train['features'][partition:,], train['labels'][partition:,]
 n_train = X_train.shape[0]
 n_validation = X_validation.shape[0]
 n_test = X_test.shape[0]
@@ -194,7 +195,7 @@ with tf.Session() as sess:
             sess.run(training_operation, feed_dict={x: batch_x, y: batch_y})
             
         training_accuracy = evaluate(X_train, y_train)
-        validation_accuracy = evaluate(X_validation, y_validation)
+        # validation_accuracy = evaluate(X_validation, y_validation)
         print("EPOCH {} ...".format(i+1))
         # print("Validation Accuracy = {:.3f}".format(validation_accuracy))
         print("Training Accuracy = {:.3f}".format(training_accuracy))

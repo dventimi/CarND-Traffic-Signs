@@ -31,7 +31,7 @@ print("Training Set:   {} samples".format(len(X_train)))
 print("Validation Set: {} samples".format(len(X_validation)))
 print("Test Set:       {} samples".format(len(X_test)))
 
-EPOCHS = 10
+EPOCHS = 100
 BATCH_SIZE = 128
 MU = 0
 SIGMA = 0.1
@@ -62,8 +62,7 @@ n_test = X_test.shape[0]
 image_shape = X_train.shape[1:]
 n_classes = len(np.unique(train['labels']))
 
-train_fraction = 0.01
-partition = math.floor(train['features'].shape[0]*train_fraction)
+partition = math.floor(train['features'].shape[0]*TRAIN_FRACTION)
 
 X_train, y_train = train['features'][0:partition,], train['labels'][0:partition,]
 X_validation, y_validation = train['features'][partition:,], train['labels'][partition:,]
@@ -84,10 +83,11 @@ print("Test Set:       {} samples".format(len(X_test)))
 
 ################################################################################
 
-EPOCHS = 10
+EPOCHS = 100
 BATCH_SIZE = 128
 MU = 0
 SIGMA = 0.1
+TRAIN_FRACTION = 0.01
 
 ################################################################################
 

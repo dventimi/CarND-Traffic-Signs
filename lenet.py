@@ -5,6 +5,7 @@ from tensorflow.contrib.layers import flatten
 from tensorflow.examples.tutorials.mnist import input_data
 import math
 import numpy as np
+import pdb
 import pickle
 import tensorflow as tf
 
@@ -47,6 +48,14 @@ print("Updated Image Shape: {}".format(X_train[0].shape))
 
 ################################################################################
 
+EPOCHS = 10
+BATCH_SIZE = 100
+MU = 0
+SIGMA = 0.1
+TRAIN_FRACTION = 0.9
+
+################################################################################
+
 training_file = '../train.p'
 testing_file = '../test.p'
 
@@ -83,15 +92,7 @@ print("Test Set:       {} samples".format(len(X_test)))
 
 ################################################################################
 
-EPOCHS = 10
-BATCH_SIZE = 100
-MU = 0
-SIGMA = 0.1
-TRAIN_FRACTION = 0.9
-
-################################################################################
-
-X_train, y_train = shuffle(X_train, y_train)
+# X_train, y_train = shuffle(X_train, y_train)
 
 ################################################################################
 
@@ -212,7 +213,6 @@ with tf.Session() as sess:
 #     loader = tf.train.import_meta_graph('lenet.meta')
 #     loader.restore(sess, tf.train.latest_checkpoint('./'))
 
-    test_accuracy = evaluate(X_test, y_test)
-    print("Test Accuracy = {:.3f}".format(test_accuracy))
+    print("Test Accuracy = {:.3f}".format(evaluate(X_test, y_test)))
 
 ################################################################################

@@ -10,7 +10,7 @@ import tensorflow as tf
 
 # Set parameters
 
-EPOCHS = 10                                                                     # Training epochs
+EPOCHS = 33                                                                     # Training epochs
 BATCH_SIZE = 100                                                                # SGD mini-batching
 MU = 0                                                                          # Mean for randomizing weights
 SIGMA = 0.1                                                                     # stdev for randomizing weights
@@ -153,8 +153,12 @@ with tf.Session() as sess:
             sess.run(training_operation, feed_dict={x: batch_x, y: batch_y})
         print()
         print("EPOCH {} ...".format(i+1))
-        print("Validation Accuracy = {:.3f}".format(evaluate(X_valid, y_valid)))
-        print("Training Accuracy = {:.3f}".format(evaluate(X_train, y_train)))
+        valid_accuracy = evaluate(X_valid, y_valid)
+        train_accuracy = evaluate(X_train, y_train)
+        print("Validation Accuracy = {:.3f}".format(valid_accuracy))
+        print("Training Accuracy = {:.3f}".format(train_accuracy))
+        if (valid_accuracy > 0.93):
+            break
         
     print("Test Accuracy = {:.3f}".format(evaluate(X_tests, y_tests)))
 

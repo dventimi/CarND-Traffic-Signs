@@ -86,6 +86,10 @@ n_test = test['features'].shape[0]
 image_shape = X_train.shape[1:]
 n_classes = len(np.unique(train['labels']))
 
+# Shuffle the training data
+
+X_train, y_train = shuffle(X_train, y_train)
+
 # Reserve a portion of training data as validation data
 
 partition = math.floor(test['features'].shape[0]*TRAIN_FRACTION)
@@ -109,10 +113,6 @@ print()
 print("Training Set:   {} samples".format(len(X_train)))
 print("Validation Set: {} samples".format(len(X_valid)))
 print("Test Set:       {} samples".format(len(X_tests)))
-
-# Shuffle the training data
-
-X_train, y_train = shuffle(X_train, y_train)
 
 # Define the model
 

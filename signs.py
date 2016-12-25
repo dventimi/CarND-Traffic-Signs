@@ -100,10 +100,10 @@ n_classes = len(np.unique(train['labels']))
 
 # Reserve a portion of training data as validation data
 
-partition = math.floor(train['features'].shape[0]*TRAIN_FRACTION)
+partition = math.floor(test['features'].shape[0]*TRAIN_FRACTION)
 
-X_train, y_train = train['features'][0:partition,], train['labels'][0:partition,]
-X_valid, y_valid = train['features'][partition:,], train['labels'][partition:,] 
+X_valid, y_valid = test['features'][:partition,], test['labels'][:partition,] 
+X_test, y_test = test['features'][partition:,], test['labels'][partition:,] 
 X_train = (X_train-128.)/128.                                                   # Scale training data
 X_valid = (X_valid-128.)/128.                                                   # Scale validation data
 X_tests = (X_tests-128.)/128.                                                   # Scale test data

@@ -66,8 +66,8 @@ with open(testing_file, mode='rb') as f:
     
 X_train, y_train = train['features'], train['labels']
 X_test, y_test = test['features'], test['labels']
-n_train = X_train.shape[0]
-n_test = X_test.shape[0]
+n_train = train['features'].shape[0]
+n_test = test['features'].shape[0]
 image_shape = X_train.shape[1:]
 n_classes = len(np.unique(train['labels']))
 
@@ -76,9 +76,10 @@ n_classes = len(np.unique(train['labels']))
 partition = math.floor(train['features'].shape[0]*TRAIN_FRACTION)
 
 X_train, y_train = train['features'][0:partition,], train['labels'][0:partition,]
+X_validation, y_validation = train['features'][partition:,], train['labels'][partition:,]
 X_train = (X_train-128.)/128.
 X_test = (X_test-128.)/128.
-X_validation, y_validation = train['features'][partition:,], train['labels'][partition:,]
+X_validation = (X_validation-128.)/128.
 n_train = X_train.shape[0]
 n_validation = X_validation.shape[0]
 n_test = X_test.shape[0]
@@ -174,14 +175,9 @@ accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 ################################################################################
 
 def evaluate(X_data, y_data):
-    num_examples = len(X_data)
-    total_accuracy = 0
     sess = tf.get_default_session()
-    for offset in range(0, num_examples, BATCH_SIZE):
-        batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]
-        accuracy = sess.run(accuracy_operation, feed_dict={x: batch_x, y: batch_y})
-        total_accuracy += (accuracy * len(batch_x))
-    return total_accuracy / num_examples
+    accuracy = sess.run(accuracy_operation, feed_dict={x: X_data, y: y_data})
+    return accuracy
 
 ################################################################################
 

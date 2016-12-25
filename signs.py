@@ -92,7 +92,7 @@ with open(testing_file, mode='rb') as f:
     test = pickle.load(f)
     
 X_train, y_train = train['features'], train['labels']
-X_test, y_test = test['features'], test['labels']
+X_tests, y_tests = test['features'], test['labels']
 n_train = train['features'].shape[0]
 n_test = test['features'].shape[0]
 image_shape = X_train.shape[1:]

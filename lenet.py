@@ -1,4 +1,4 @@
-################################################################################
+# Import modules
 
 from sklearn.utils import shuffle
 from tensorflow.contrib.layers import flatten
@@ -8,16 +8,16 @@ import pdb
 import pickle
 import tensorflow as tf
 
-################################################################################
+# Set parameters
 
-EPOCHS = 10
-BATCH_SIZE = 100
-MU = 0
-SIGMA = 0.1
-TRAIN_FRACTION = 0.9
+EPOCHS = 10                                                                     # Training epochs
+BATCH_SIZE = 100                                                                # SGD mini-batching
+MU = 0                                                                          # Mean for randomizing weights
+SIGMA = 0.1                                                                     # stdev for randomizing weights
+TRAIN_FRACTION = 0.9                                                            # Learning rate
 LEARNING_RATE = 0.001
 
-################################################################################
+# Define architecture
 
 def LeNet(x, n_classes):    
     # SOLUTION: Layer 1: Convolutional. Input = 32x32xinput_channels. Output = 28x28x6.
@@ -69,14 +69,19 @@ def LeNet(x, n_classes):
     
     return logits
 
-################################################################################
+# Define evaluation function
 
 def evaluate(X_data, y_data):
+    num_examples = len(X_data)
+    total_accuracy = 0
     sess = tf.get_default_session()
-    accuracy = sess.run(accuracy_operation, feed_dict={x: X_data, y: y_data})
-    return accuracy
+    for offset in range(0, num_examples, BATCH_SIZE):
+        batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]
+        accuracy = sess.run(accuracy_operation, feed_dict={x: batch_x, y: batch_y})
+        total_accuracy += (accuracy * len(batch_x))
+    return total_accuracy / num_examples
 
-################################################################################
+# Load traffic sign data
 
 training_file = '../train.p'
 testing_file = '../test.p'
@@ -93,58 +98,52 @@ n_test = test['features'].shape[0]
 image_shape = X_train.shape[1:]
 n_classes = len(np.unique(train['labels']))
 
-################################################################################
+# Reserve a portion of training data as validation data
 
 partition = math.floor(train['features'].shape[0]*TRAIN_FRACTION)
 
 X_train, y_train = train['features'][0:partition,], train['labels'][0:partition,]
-X_validation, y_validation = train['features'][partition:,], train['labels'][partition:,]
-X_train = (X_train-128.)/128.
-X_test = (X_test-128.)/128.
-X_validation = (X_validation-128.)/128.
+X_valid, y_valid = train['features'][partition:,], train['labels'][partition:,] 
+X_train = (X_train-128.)/128.                                                   # Scale training data
+X_valid = (X_valid-128.)/128.                                                   # Scale validation data
+X_tests = (X_tests-128.)/128.                                                   # Scale test data
 n_train = X_train.shape[0]
-n_validation = X_validation.shape[0]
-n_test = X_test.shape[0]
+n_valid = X_valid.shape[0]
+n_tests = X_tests.shape[0]
 
 assert(len(X_train) == len(y_train))
-assert(len(X_validation) == len(y_validation))
-assert(len(X_test) == len(y_test))
+assert(len(X_valid) == len(y_valid))
+assert(len(X_tests) == len(y_tests))
 
 print()
 print("Image Shape: {}".format(X_train[0].shape))
 print()
 print("Training Set:   {} samples".format(len(X_train)))
-print("Validation Set: {} samples".format(len(X_validation)))
-print("Test Set:       {} samples".format(len(X_test)))
+print("Validation Set: {} samples".format(len(X_valid)))
+print("Test Set:       {} samples".format(len(X_tests)))
 
-################################################################################
+# Shuffle the training data
 
 X_train, y_train = shuffle(X_train, y_train)
 
-################################################################################
+# Define the model
 
-x = tf.placeholder(tf.float32, (None,) + X_train.shape[1:])
-y = tf.placeholder(tf.int32, (None))
+x = tf.placeholder(tf.float32, (None,) + X_train.shape[1:])                     # dim(x) = (?, 32, 32, 3)
+y = tf.placeholder(tf.int32, (None))                                            # dim(y) = (?)
 one_hot_y = tf.one_hot(y, n_classes)
-
-################################################################################
-
 logits = LeNet(x, n_classes)
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits, one_hot_y)
 loss_operation = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdamOptimizer(learning_rate = LEARNING_RATE)
 training_operation = optimizer.minimize(loss_operation)
-
-################################################################################
-
 correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
 accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-################################################################################
+# Train the model, validate, and test
 
 with tf.Session() as sess:
-    # sess.run(tf.initialize_all_variables())
-    sess.run(tf.global_variables_initializer())
+    sess.run(tf.initialize_all_variables())                                     # TensorFlow r0.11
+    # sess.run(tf.global_variables_initializer())                                 # TensorFlow r0.12
     num_examples = len(X_train)
     for i in range(EPOCHS):
         X_train, y_train = shuffle(X_train, y_train)
@@ -152,10 +151,10 @@ with tf.Session() as sess:
             end = offset + BATCH_SIZE
             batch_x, batch_y = X_train[offset:end], y_train[offset:end]
             sess.run(training_operation, feed_dict={x: batch_x, y: batch_y})
-        print("EPOCH {} ...".format(i+1))
-        print("Validation Accuracy = {:.3f}".format(evaluate(X_validation, y_validation)))
-        print("Training Accuracy = {:.3f}".format(evaluate(X_train, y_train)))
         print()
+        print("EPOCH {} ...".format(i+1))
+        print("Validation Accuracy = {:.3f}".format(evaluate(X_valid, y_valid)))
+        print("Training Accuracy = {:.3f}".format(evaluate(X_train, y_train)))
         
-    print("Test Accuracy = {:.3f}".format(evaluate(X_test, y_test)))
+    print("Test Accuracy = {:.3f}".format(evaluate(X_tests, y_tests)))
 

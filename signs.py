@@ -19,10 +19,9 @@ LEARNING_RATE = 0.001
 
 # Define architecture
 
-def LeNet(x, n_classes):    
+def LeNet(x, keep_prob, n_classes):    
     # Layer 1: Convolutional. Input = 32x32xinput_channels. Output = 28x28x6.
-    input_channels = x.get_shape()[3].value
-    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, input_channels, 6), mean = MU, stddev = SIGMA))
+    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, x.get_shape()[3].value, 6), mean = MU, stddev = SIGMA))
     conv1_b = tf.Variable(tf.zeros(6))
     conv1   = tf.nn.conv2d(x, conv1_W, strides=[1, 1, 1, 1], padding='VALID') + conv1_b
     # Activation.
@@ -51,10 +50,12 @@ def LeNet(x, n_classes):
     fc2    = tf.matmul(fc1, fc2_W) + fc2_b
     # Activation.
     fc2    = tf.nn.relu(fc2)
+    # Dropout
+    fc2_drop = tf.nn.dropout(fc2, keep_prob)
     # Layer 5: Fully Connected. Input = 84. Output = n_classes.
     fc3_W  = tf.Variable(tf.truncated_normal(shape=(84, n_classes), mean = MU, stddev = SIGMA))
     fc3_b  = tf.Variable(tf.zeros(n_classes))
-    logits = tf.matmul(fc2, fc3_W) + fc3_b
+    logits = tf.matmul(fc2_drop, fc3_W) + fc3_b
     return logits
 
 # Define evaluation function
@@ -65,7 +66,7 @@ def evaluate(X_data, y_data):
     sess = tf.get_default_session()
     for offset in range(0, num_examples, BATCH_SIZE):
         batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]
-        accuracy = sess.run(accuracy_operation, feed_dict={x: batch_x, y: batch_y})
+        accuracy = sess.run(accuracy_operation, feed_dict={x: batch_x, y: batch_y, keep_prob:1.0})
         total_accuracy += (accuracy * len(batch_x))
     return total_accuracy / num_examples
 
@@ -118,8 +119,9 @@ print("Test Set:       {} samples".format(len(X_tests)))
 
 x = tf.placeholder(tf.float32, (None,) + X_train.shape[1:])                     # dim(x) = (?, 32, 32, 3)
 y = tf.placeholder(tf.int32, (None))                                            # dim(y) = (?)
+keep_prob = tf.placeholder(tf.float32)
 one_hot_y = tf.one_hot(y, n_classes)
-logits = LeNet(x, n_classes)
+logits = LeNet(x, keep_prob, n_classes)
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits, one_hot_y)
 loss_operation = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdamOptimizer(learning_rate = LEARNING_RATE)
@@ -138,14 +140,14 @@ with tf.Session() as sess:
         for offset in range(0, num_examples, BATCH_SIZE):
             end = offset + BATCH_SIZE
             batch_x, batch_y = X_train[offset:end], y_train[offset:end]
-            sess.run(training_operation, feed_dict={x: batch_x, y: batch_y})
+            sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, keep_prob:0.5})
         print()
         print("EPOCH {} ...".format(i+1))
         valid_accuracy = evaluate(X_valid, y_valid)
         train_accuracy = evaluate(X_train, y_train)
         print("Validation Accuracy = {:.3f}".format(valid_accuracy))
         print("Training Accuracy = {:.3f}".format(train_accuracy))
-        if (valid_accuracy > 0.93):
+        if (valid_accuracy > 0.99):
             break
         
     print("Test Accuracy = {:.3f}".format(evaluate(X_tests, y_tests)))

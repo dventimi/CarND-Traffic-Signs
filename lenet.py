@@ -32,7 +32,7 @@ print("Training Set:   {} samples".format(len(X_train)))
 print("Validation Set: {} samples".format(len(X_validation)))
 print("Test Set:       {} samples".format(len(X_test)))
 
-EPOCHS = 100
+EPOCHS = 1
 BATCH_SIZE = 128
 MU = 0
 SIGMA = 0.1
@@ -71,9 +71,13 @@ n_test = X_test.shape[0]
 image_shape = X_train.shape[1:]
 n_classes = len(np.unique(train['labels']))
 
+################################################################################
+
 partition = math.floor(train['features'].shape[0]*TRAIN_FRACTION)
 
 X_train, y_train = train['features'][0:partition,], train['labels'][0:partition,]
+X_train = (X_train-128.)/128.
+X_test = (X_test-128.)/128.
 X_validation, y_validation = train['features'][partition:,], train['labels'][partition:,]
 n_train = X_train.shape[0]
 n_validation = X_validation.shape[0]
@@ -92,7 +96,7 @@ print("Test Set:       {} samples".format(len(X_test)))
 
 ################################################################################
 
-# X_train, y_train = shuffle(X_train, y_train)
+X_train, y_train = shuffle(X_train, y_train)
 
 ################################################################################
 

@@ -1,5 +1,6 @@
 # Import modules
 
+from collections import deque
 from sklearn.utils import shuffle
 from tensorflow.contrib.layers import flatten
 import math
@@ -134,6 +135,8 @@ accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 with tf.Session() as sess:
     sess.run(tf.initialize_all_variables())                                     # TensorFlow r0.11
     # sess.run(tf.global_variables_initializer())                                 # TensorFlow r0.12
+    accuracy_window = deque(np.zeros(5, dtype='f'), 5)
+    accuracy_means = deque(np.zeros(2, dtype='f'), 2)
     num_examples = len(X_train)
     for i in range(EPOCHS):
         X_train, y_train = shuffle(X_train, y_train)
@@ -145,10 +148,15 @@ with tf.Session() as sess:
         print("EPOCH {} ...".format(i+1))
         valid_accuracy = evaluate(X_valid, y_valid)
         train_accuracy = evaluate(X_train, y_train)
+        accuracy_window.append(valid_accuracy)
+        mean_accuracy = np.mean(accuracy_window)
+        accuracy_means.append(mean_accuracy)
+        accuracy_delta = accuracy_means[1]-accuracy_means[0]
         print("Validation Accuracy = {:.3f}".format(valid_accuracy))
+        print("Mean Validation Accuracy = {:.3f}".format(mean_accuracy))
+        print("Accuracy Delta = {:.3f}".format(accuracy_delta))
         print("Training Accuracy = {:.3f}".format(train_accuracy))
-        if (valid_accuracy > 0.99):
+        if (math.abs(accuracy_delta)<0.01 and i>10):
             break
         
     print("Test Accuracy = {:.3f}".format(evaluate(X_tests, y_tests)))
-

@@ -4,12 +4,12 @@
 * TODO Normalize images.
 *** Brightness
 *** Contrast
-* TODO Try grayscale on images.
+* DONE Try grayscale on images.
 * TODO Sub-sample training set to produce an even distribution.
 * TODO Generate fake data.
 *** Non-German signs
 *** Random shapes
-* TODO Split data.
+* DONE Split data.
 *** Training
 *** Validation
 *** Testing
@@ -34,7 +34,7 @@
 * TODO Heavily refactor code.
 *** Functions
 *** Parameters
-* TODO Pre-process the data
+* DONE Pre-process the data
 *** Use 'coords' and 'sizes' to generate bounding boxes for signs.
 *** Draw bounding boxes onto all plotted images, with a helper function or functions.
 *** Clip images with bounding box before using them to train the model.

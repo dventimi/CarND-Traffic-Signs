@@ -63,10 +63,9 @@ def LeNet(x, keep_prob, n_classes):
 
 # Define evaluation function
 
-def evaluate(X_data, y_data):
+def evaluate(sess, X_data, y_data):
     num_examples = len(X_data)
     total_accuracy = 0
-    sess = tf.get_default_session()
     for offset in range(0, num_examples, BATCH_SIZE):
         batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]
         accuracy = sess.run(accuracy_operation, feed_dict={x: batch_x, y: batch_y, keep_prob:1.0})
@@ -139,8 +138,8 @@ with tf.Session() as sess:
             end = offset + BATCH_SIZE
             batch_x, batch_y = X_train[offset:end], y_train[offset:end]
             sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, keep_prob:0.5})
-        valid_accuracy = evaluate(X_valid, y_valid)
-        train_accuracy = evaluate(X_train, y_train)
+        valid_accuracy = evaluate(sess, X_valid, y_valid)
+        train_accuracy = evaluate(sess, X_train, y_train)
         accuracy_window.append(valid_accuracy)
         mean_accuracy = np.mean(accuracy_window)
         accuracy_means.append(mean_accuracy)
@@ -149,8 +148,9 @@ with tf.Session() as sess:
         if (abs(accuracy_delta)<0.01 and i>MIN_EPOCHS):
             break
         
-    # saver = tf.train.Saver()
-    # saver.save(sess, 'lenet')
-    # loader = tf.train.import_meta_graph('lenet.meta')
-    # loader.restore(sess, tf.train.latest_checkpoint('./'))
-    # print("Test Accuracy = {:.3f}".format(evaluate(X_tests, y_tests)))
+    saver = tf.train.Saver()
+    saver.save(sess, 'signs')
+
+    loader = tf.train.import_meta_graph('signs.meta')
+    loader.restore(sess, tf.train.latest_checkpoint('./'))
+    print("Test Accuracy = {:.3f}".format(evaluate(sess, X_tests, y_tests)))

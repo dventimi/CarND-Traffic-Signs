@@ -11,27 +11,27 @@ import tensorflow as tf
 
 # Set parameters
 
-EPOCHS = 33                                                                     # Training epochs
-BATCH_SIZE = 100                                                                # SGD mini-batching
-MU = 0                                                                          # Mean for randomizing weights
-SIGMA = 0.1                                                                     # stdev for randomizing weights
-TRAIN_FRACTION = 0.9                                                            # Learning rate
+EPOCHS = 33
+BATCH_SIZE = 100
+MU = 0
+SIGMA = 0.1
+TRAIN_FRACTION = 0.9
 LEARNING_RATE = 0.001
 
 # Define architecture
 
 def LeNet(x, keep_prob, n_classes):    
     # Layer 1: Convolutional. Input = 32x32xinput_channels. Output = 28x28x6.
-    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, x.get_shape()[3].value, 6), mean = MU, stddev = SIGMA))
-    conv1_b = tf.Variable(tf.zeros(6))
+    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, x.get_shape()[3].value, 6), mean = MU, stddev = SIGMA), name='conv1_W')
+    conv1_b = tf.Variable(tf.zeros(6), name='conv1_b')
     conv1   = tf.nn.conv2d(x, conv1_W, strides=[1, 1, 1, 1], padding='VALID') + conv1_b
     # Activation.
     conv1 = tf.nn.relu(conv1)
     # Pooling. Input = 28x28x6. Output = 14x14x6.
     conv1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
     # Layer 2: Convolutional. Output = 10x10x16.
-    conv2_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16), mean = MU, stddev = SIGMA))
-    conv2_b = tf.Variable(tf.zeros(16))
+    conv2_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16), mean = MU, stddev = SIGMA), name='conv2_W')
+    conv2_b = tf.Variable(tf.zeros(16), name='conv2_b')
     conv2   = tf.nn.conv2d(conv1, conv2_W, strides=[1, 1, 1, 1], padding='VALID') + conv2_b
     # Activation.
     conv2 = tf.nn.relu(conv2)
@@ -40,22 +40,22 @@ def LeNet(x, keep_prob, n_classes):
     # Flatten. Input = 5x5x16. Output = 400.
     fc0   = flatten(conv2)
     # Layer 3: Fully Connected. Input = 400. Output = 120.
-    fc1_W = tf.Variable(tf.truncated_normal(shape=(400, 120), mean = MU, stddev = SIGMA))
-    fc1_b = tf.Variable(tf.zeros(120))
+    fc1_W = tf.Variable(tf.truncated_normal(shape=(400, 120), mean = MU, stddev = SIGMA), name='fc1_W')
+    fc1_b = tf.Variable(tf.zeros(120), name='fc1_b')
     fc1   = tf.matmul(fc0, fc1_W) + fc1_b
     # Activation.
     fc1    = tf.nn.relu(fc1)
     # Layer 4: Fully Connected. Input = 120. Output = 84.
-    fc2_W  = tf.Variable(tf.truncated_normal(shape=(120, 84), mean = MU, stddev = SIGMA))
-    fc2_b  = tf.Variable(tf.zeros(84))
+    fc2_W  = tf.Variable(tf.truncated_normal(shape=(120, 84), mean = MU, stddev = SIGMA), name='fc2_W')
+    fc2_b  = tf.Variable(tf.zeros(84), name='fc2_b')
     fc2    = tf.matmul(fc1, fc2_W) + fc2_b
     # Activation.
     fc2    = tf.nn.relu(fc2)
     # Dropout
     fc2_drop = tf.nn.dropout(fc2, keep_prob)
     # Layer 5: Fully Connected. Input = 84. Output = n_classes.
-    fc3_W  = tf.Variable(tf.truncated_normal(shape=(84, n_classes), mean = MU, stddev = SIGMA))
-    fc3_b  = tf.Variable(tf.zeros(n_classes))
+    fc3_W  = tf.Variable(tf.truncated_normal(shape=(84, n_classes), mean = MU, stddev = SIGMA), name='fc3_W')
+    fc3_b  = tf.Variable(tf.zeros(n_classes), name='fc3_b')
     logits = tf.matmul(fc2_drop, fc3_W) + fc3_b
     return logits
 
@@ -98,9 +98,9 @@ partition = math.floor(test['features'].shape[0]*TRAIN_FRACTION)
 
 X_valid, y_valid = test['features'][:partition,], test['labels'][:partition,] 
 X_test, y_test = test['features'][partition:,], test['labels'][partition:,] 
-X_train = (X_train-128.)/128.                                                   # Scale training data
-X_valid = (X_valid-128.)/128.                                                   # Scale validation data
-X_tests = (X_tests-128.)/128.                                                   # Scale test data
+X_train = (X_train-128.)/128.
+X_valid = (X_valid-128.)/128.
+X_tests = (X_tests-128.)/128.
 n_train = X_train.shape[0]
 n_valid = X_valid.shape[0]
 n_tests = X_tests.shape[0]
@@ -118,8 +118,9 @@ print("Test Set:       {} samples".format(len(X_tests)))
 
 # Define the model
 
-x = tf.placeholder(tf.float32, (None,) + X_train.shape[1:])                     # dim(x) = (?, 32, 32, 3)
-y = tf.placeholder(tf.int32, (None))                                            # dim(y) = (?)
+tf.reset_default_graph()
+x = tf.placeholder(tf.float32, (None,) + X_train.shape[1:])
+y = tf.placeholder(tf.int32, (None))
 keep_prob = tf.placeholder(tf.float32)
 one_hot_y = tf.one_hot(y, n_classes)
 logits = LeNet(x, keep_prob, n_classes)
@@ -133,8 +134,7 @@ accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 # Train the model, validate, and test
 
 with tf.Session() as sess:
-    sess.run(tf.initialize_all_variables())                                     # TensorFlow r0.11
-    # sess.run(tf.global_variables_initializer())                                 # TensorFlow r0.12
+    sess.run(tf.initialize_all_variables())
     accuracy_window = deque(np.zeros(5, dtype='f'), 5)
     accuracy_means = deque(np.zeros(2, dtype='f'), 2)
     num_examples = len(X_train)
@@ -156,7 +156,11 @@ with tf.Session() as sess:
         print("Mean Validation Accuracy = {:.3f}".format(mean_accuracy))
         print("Accuracy Delta = {:.3f}".format(accuracy_delta))
         print("Training Accuracy = {:.3f}".format(train_accuracy))
-        if (math.abs(accuracy_delta)<0.01 and i>10):
+        if (abs(accuracy_delta)<0.01 and i>10):
             break
         
+    saver = tf.train.Saver()
+    saver.save(sess, 'lenet')
+    loader = tf.train.import_meta_graph('lenet.meta')
+    loader.restore(sess, tf.train.latest_checkpoint('./'))
     print("Test Accuracy = {:.3f}".format(evaluate(X_tests, y_tests)))

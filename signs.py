@@ -11,12 +11,14 @@ import tensorflow as tf
 
 # Set parameters
 
-EPOCHS = 33
+ACCURACY_THRESHOLD = 0.01
 BATCH_SIZE = 100
+LEARNING_RATE = 0.001
+MAX_EPOCHS = 100
+MIN_EPOCHS = 10
 MU = 0
 SIGMA = 0.1
 TRAIN_FRACTION = 0.9
-LEARNING_RATE = 0.001
 
 # Define architecture
 
@@ -109,13 +111,6 @@ assert(len(X_train) == len(y_train))
 assert(len(X_valid) == len(y_valid))
 assert(len(X_tests) == len(y_tests))
 
-print()
-print("Image Shape: {}".format(X_train[0].shape))
-print()
-print("Training Set:   {} samples".format(len(X_train)))
-print("Validation Set: {} samples".format(len(X_valid)))
-print("Test Set:       {} samples".format(len(X_tests)))
-
 # Define the model
 
 tf.reset_default_graph()
@@ -138,29 +133,24 @@ with tf.Session() as sess:
     accuracy_window = deque(np.zeros(5, dtype='f'), 5)
     accuracy_means = deque(np.zeros(2, dtype='f'), 2)
     num_examples = len(X_train)
-    for i in range(EPOCHS):
+    for i in range(MAX_EPOCHS):
         X_train, y_train = shuffle(X_train, y_train)
         for offset in range(0, num_examples, BATCH_SIZE):
             end = offset + BATCH_SIZE
             batch_x, batch_y = X_train[offset:end], y_train[offset:end]
             sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, keep_prob:0.5})
-        print()
-        print("EPOCH {} ...".format(i+1))
         valid_accuracy = evaluate(X_valid, y_valid)
         train_accuracy = evaluate(X_train, y_train)
         accuracy_window.append(valid_accuracy)
         mean_accuracy = np.mean(accuracy_window)
         accuracy_means.append(mean_accuracy)
         accuracy_delta = accuracy_means[1]-accuracy_means[0]
-        print("Validation Accuracy = {:.3f}".format(valid_accuracy))
-        print("Mean Validation Accuracy = {:.3f}".format(mean_accuracy))
-        print("Accuracy Delta = {:.3f}".format(accuracy_delta))
-        print("Training Accuracy = {:.3f}".format(train_accuracy))
-        if (abs(accuracy_delta)<0.01 and i>10):
+        print("{},{},{},{},{}".format((i+1), valid_accuracy, mean_accuracy, accuracy_delta, train_accuracy))
+        if (abs(accuracy_delta)<0.01 and i>MIN_EPOCHS):
             break
         
-    saver = tf.train.Saver()
-    saver.save(sess, 'lenet')
-    loader = tf.train.import_meta_graph('lenet.meta')
-    loader.restore(sess, tf.train.latest_checkpoint('./'))
-    print("Test Accuracy = {:.3f}".format(evaluate(X_tests, y_tests)))
+    # saver = tf.train.Saver()
+    # saver.save(sess, 'lenet')
+    # loader = tf.train.import_meta_graph('lenet.meta')
+    # loader.restore(sess, tf.train.latest_checkpoint('./'))
+    # print("Test Accuracy = {:.3f}".format(evaluate(X_tests, y_tests)))

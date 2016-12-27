@@ -127,8 +127,7 @@ accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 # Train the model, validate, and test
 
-with tf.Session() as sess:
-    sess.run(tf.initialize_all_variables())
+def train_model(X_train, y_train, BATCH_SIZE):
     accuracy_window = deque(np.zeros(5, dtype='f'), 5)
     accuracy_means = deque(np.zeros(2, dtype='f'), 2)
     num_examples = len(X_train)
@@ -148,9 +147,14 @@ with tf.Session() as sess:
         if (abs(accuracy_delta)<0.01 and i>MIN_EPOCHS):
             break
         
-    saver = tf.train.Saver()
-    saver.save(sess, 'signs')
+saver = tf.train.Saver()
+sess = tf.Session()
+try:
+    saver.restore(sess, os.getcwd() + "/model.ckpt")
+except:
+    sess.run(tf.initialize_all_variables())
+    train_model(X_train, y_train, BATCH_SIZE)
+    save_path = saver.save(sess, "model.ckpt")
+    print(save_path)
 
-    loader = tf.train.import_meta_graph('signs.meta')
-    loader.restore(sess, tf.train.latest_checkpoint('./'))
-    print("Test Accuracy = {:.3f}".format(evaluate(sess, X_tests, y_tests)))
+print("Test Accuracy = {:.3f}".format(evaluate(sess, X_tests, y_tests)))

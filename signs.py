@@ -19,7 +19,7 @@ MAX_EPOCHS = 100
 MIN_EPOCHS = 10
 MU = 0
 SIGMA = 0.1
-TRAIN_FRACTION = 0.9
+VALIDATION_FRACTION = 0.9
 
 # Define architecture
 
@@ -96,7 +96,7 @@ X_train, y_train = shuffle(X_train, y_train)
 
 # Reserve a portion of training data as validation data
 
-X_train, X_valid, y_train, y_valid = train_test_split(train['features'], train['labels'], test_size=0.20, random_state=42)
+X_train, X_valid, y_train, y_valid = train_test_split(train['features'], train['labels'], test_size=VALIDATION_FRACTION, random_state=42)
 
 X_train = (X_train-128.)/128.
 X_valid = (X_valid-128.)/128.

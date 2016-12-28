@@ -151,7 +151,7 @@ sess = tf.Session()
 try:
     saver.restore(sess, os.getcwd() + "/model.ckpt")
 except:
-    sess.run(tf.initialize_all_variables())
+    sess.run(tf.global_variables_initializer())
     train_model(X_train, y_train, BATCH_SIZE)
     save_path = saver.save(sess, "model.ckpt")
     print(save_path)

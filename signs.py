@@ -23,7 +23,7 @@ VALIDATION_FRACTION = 0.2
 
 # Define architecture
 
-def LeNet(x, keep_prob, n_classes):    
+def SignNet(x, keep_prob, n_classes):    
     # Layer 1: Convolutional. Input = 32x32xinput_channels. Output = 28x28x6.
     conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, x.get_shape()[3].value, 6), mean = MU, stddev = SIGMA), name='conv1_W')
     conv1_b = tf.Variable(tf.zeros(6), name='conv1_b')
@@ -92,15 +92,16 @@ n_classes = len(np.unique(train['labels']))
 
 # Shuffle the training data
 
-X_train, y_train = shuffle(X_train, y_train)
+train['features'], train['labels'] = shuffle(X_train, y_train)
+
+# Scale images
+
+train['features'] = (train['features']-128.)/128.
+test['features'] = (test['features']-128.)/128.
 
 # Reserve a portion of training data as validation data
 
 X_train, X_valid, y_train, y_valid = train_test_split(train['features'], train['labels'], test_size=VALIDATION_FRACTION, random_state=42)
-
-X_train = (X_train-128.)/128.
-X_valid = (X_valid-128.)/128.
-X_tests = (X_tests-128.)/128.
 n_train = X_train.shape[0]
 n_valid = X_valid.shape[0]
 n_tests = X_tests.shape[0]
@@ -116,7 +117,7 @@ x = tf.placeholder(tf.float32, (None,) + X_train.shape[1:])
 y = tf.placeholder(tf.int32, (None))
 keep_prob = tf.placeholder(tf.float32)
 one_hot_y = tf.one_hot(y, n_classes)
-logits = LeNet(x, keep_prob, n_classes)
+logits = SignNet(x, keep_prob, n_classes)
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits, one_hot_y)
 loss_operation = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdamOptimizer(learning_rate = LEARNING_RATE)

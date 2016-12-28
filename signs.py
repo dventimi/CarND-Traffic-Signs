@@ -142,8 +142,8 @@ def train_model(X_train, y_train, BATCH_SIZE):
         mean_accuracy = np.mean(accuracy_window)
         accuracy_means.append(mean_accuracy)
         accuracy_delta = accuracy_means[1]-accuracy_means[0]
-        print("{},{},{},{},{}".format((i+1), valid_accuracy, mean_accuracy, accuracy_delta, train_accuracy))
-        if (abs(accuracy_delta)<0.01 and i>MIN_EPOCHS):
+        print("{},{:.3f},{:.3f},{:.3f},{:.3f}".format((i+1), valid_accuracy, mean_accuracy, accuracy_delta, train_accuracy))
+        if (abs(accuracy_delta)<ACCURACY_THRESHOLD and i>MIN_EPOCHS):
             break
         
 saver = tf.train.Saver()

@@ -1,6 +1,7 @@
 # Import modules
 
 from collections import deque
+from sklearn.cross_validation import train_test_split
 from sklearn.utils import shuffle
 from tensorflow.contrib.layers import flatten
 import math
@@ -95,10 +96,8 @@ X_train, y_train = shuffle(X_train, y_train)
 
 # Reserve a portion of training data as validation data
 
-partition = math.floor(test['features'].shape[0]*TRAIN_FRACTION)
+X_train, X_valid, y_train, y_valid = train_test_split(train['features'], train['labels'], test_size=0.20, random_state=42)
 
-X_valid, y_valid = test['features'][:partition,], test['labels'][:partition,] 
-X_test, y_test = test['features'][partition:,], test['labels'][partition:,] 
 X_train = (X_train-128.)/128.
 X_valid = (X_valid-128.)/128.
 X_tests = (X_tests-128.)/128.

@@ -14,5 +14,3 @@ MNIST_data
 lenet.index
 lenet.data*
 __pycache__
-*.data*
-*.index

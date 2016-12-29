@@ -168,8 +168,6 @@ optimizer = tf.train.AdamOptimizer(learning_rate = LEARNING_RATE)
 training_operation = optimizer.minimize(loss_operation)
 correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
 accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-probability_operation = tf.nn.softmax(logits)
-prediction_operation = tf.argmax(probability_operation, 1)
 
 # Define evaluation function
 
@@ -269,21 +267,22 @@ for t in zip(range(n), images, classifications):
 
 # Visualize uncertainty
 
-X_check, y_check = train['features'][1000,], train['labels'][1000,]
+X_check, y_check = train['features'][:1000,], train['labels'][:1000,]
 
-# def check(sess, X_data, y_data):
-#     num_examples = len(X_data)
-#     total_accuracy = 0
-#     for offset in range(0, num_examples, BATCH_SIZE):
-#         batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]
-#         correct = sess.run(correct_prediction, feed_dict={x: batch_x, y: batch_y, keep_prob:1.0})
-#         probabilities = sess.run(probability_operation, feed_dict={x: batch_x, y: batch_y, keep_prob:1.0})
-#         predictions = sess.run(tf.argmax(probability_operation, 1), feed_dict={x: batch_x, y: batch_y, keep_prob:1.0})
-#         topn = sess.run(tf.nn.top_k(probabilities, k=1), feed_dict={x: batch_x, y: batch_y, keep_prob:1.0}) 
-#         # print(probabilities[~correct].shape)
-#         break
-#     return ~correct, probabilities, predictions, topn
+def count_in_top_n(sess, X_check, y_check, k=5):
+    probability_operation = tf.nn.softmax(logits)
+    prediction_operation = tf.argmax(probability_operation, 1)
+    correct = sess.run(correct_prediction, feed_dict={x: X_check, y: y_check, keep_prob:1.0})
+    probs = sess.run(probability_operation, feed_dict={x: X_check, y: y_check, keep_prob:1.0})
+    predictions = sess.run(tf.argmax(probs, 1), feed_dict={x: X_check, y: y_check, keep_prob:1.0})
+    topn = sess.run(tf.nn.top_k(probs, k=k), feed_dict={x: X_check, y: y_check, keep_prob:1.0})
+    return sum([len(np.where(p[1]==p[0])[0])>0 for p in zip(y_check[~correct], topn[1][~correct])])
 
-# incorrect, probs, predictions, topn = check(sess, X_tests, y_tests)
-# [np.any(p[1]==p[0]) for p in zip(predictions[incorrect], topn[1][incorrect])]
+print(count_in_top_n(sess, X_check, y_check, 1))
+print(count_in_top_n(sess, X_check, y_check, 2))
+print(count_in_top_n(sess, X_check, y_check, 3))
+print(count_in_top_n(sess, X_check, y_check, 4))
+print(count_in_top_n(sess, X_check, y_check, 5))
+    
+
 

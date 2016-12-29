@@ -40,8 +40,6 @@ n_test = test['features'].shape[0]
 image_shape = X_train.shape[1:]
 n_classes = len(np.unique(train['labels']))
 
-# Explore the data
-
 ### Replace each question mark with the appropriate value.
 
 # TODO: Number of training examples
@@ -58,19 +56,6 @@ image_shape = train['features'].shape[1:]
 
 # TODO: How many unique classes/labels there are in the dataset.
 
-# The labels are numeric (integers), so we could take advantage of the
-# natural ordering of numbers by subtracting the minimum label value
-# from the maximum label value and adding 1 (because both the min
-# value AND the max value are represented among the labels).
-
-n_classes = max(train['labels'])-min(train['labels'])+1
-
-# However, by doing this we implicitly assume that every possible
-# label (i.e., integer) in that interval is represented in the training
-# set.  That need not be the case.  Therefore, a more reliable way is
-# to count the number of unique elements within set of labels.
-
-import numpy as np
 n_classes = len(np.unique(train['labels']))
 
 print("Number of training examples =", n_train)
@@ -81,6 +66,8 @@ print("Number of classes =", n_classes)
 ### Data exploration visualization goes here.
 ### Feel free to use as many code cells as needed.
 # Visualizations will be shown in the notebook.
+
+# Explore the data
 
 # Sample of n sign images
 plt.ion()
@@ -93,6 +80,9 @@ for t in zip(range(n), np.random.choice(np.array(range(n_train)), n, False)):
     fig.add_subplot(rows,columns,t[0]+1)
     plt.imshow(train['features'][t[1],], interpolation='nearest')
 
+### Preprocess the data here.
+### Feel free to use as many code cells as needed.
+
 # Shuffle the training data
 
 train['features'], train['labels'] = shuffle(X_train, y_train)
@@ -101,6 +91,10 @@ train['features'], train['labels'] = shuffle(X_train, y_train)
 
 train['features'] = (train['features']-128.)/128.
 test['features'] = (test['features']-128.)/128.
+
+### Generate data additional data (OPTIONAL!)
+### and split the data into training/validation/testing sets here.
+### Feel free to use as many code cells as needed.
 
 # Reserve a portion of training data as validation data
 
@@ -112,6 +106,9 @@ n_tests = X_tests.shape[0]
 assert(len(X_train) == len(y_train))
 assert(len(X_valid) == len(y_valid))
 assert(len(X_tests) == len(y_tests))
+
+### Define your architecture here.
+### Feel free to use as many code cells as needed.
 
 # Define architecture
 
@@ -153,6 +150,9 @@ def SignNet(x, keep_prob, n_classes):
     fc3_b  = tf.Variable(tf.zeros(n_classes), name='fc3_b')
     logits = tf.matmul(fc2_drop, fc3_W) + fc3_b
     return logits
+
+### Train your model here.
+### Feel free to use as many code cells as needed.
 
 # Define the model
 
@@ -216,6 +216,9 @@ except:
 
 print("Test Accuracy = {:.3f}".format(evaluate(sess, X_tests, y_tests)))
 
+### Run the predictions here.
+### Feel free to use as many code cells as needed.
+
 # Test a Model on New Images
 
 image_loader = \
@@ -257,7 +260,7 @@ plt.ion()
 n = 12
 columns = 3
 rows = n // columns + int(n % columns > 0)
-fig = plt.figure()
+fig = plt.figure(figsize=(8.5, 11))
 plt.subplots_adjust(wspace=4, hspace=0.001)
 for t in zip(range(n), images, classifications):
     ax = fig.add_subplot(rows,columns,t[0]+1)
@@ -265,6 +268,8 @@ for t in zip(range(n), images, classifications):
     plt.imshow(t[1], interpolation='nearest')
 
 # Visualize uncertainty
+
+X_check, y_check = train['features'][1000,], train['labels'][1000,]
 
 # def check(sess, X_data, y_data):
 #     num_examples = len(X_data)

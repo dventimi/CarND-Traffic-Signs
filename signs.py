@@ -83,8 +83,6 @@ print("Number of classes =", n_classes)
 # Visualizations will be shown in the notebook.
 
 # Sample of n sign images
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 plt.ion()
 n = 16
 columns = 4
@@ -171,6 +169,7 @@ training_operation = optimizer.minimize(loss_operation)
 correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
 accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 probability_operation = tf.nn.softmax(logits)
+prediction_operation = tf.argmax(probability_operation, 1)
 
 # Define evaluation function
 
@@ -227,75 +226,59 @@ image_loader = \
                         tf.train.match_filenames_once("./images/*.jpg")))[1]),
             [32, 32], method=1)
 
-with tf.Session() as sess:
+with tf.Session() as loader_sess:
     tf.initialize_all_variables().run()
     coord = tf.train.Coordinator()
     threads = tf.train.start_queue_runners(coord=coord)
     images = np.array([
-        sess.run(image_loader),
-        sess.run(image_loader),
-        sess.run(image_loader),
-        sess.run(image_loader),
-        sess.run(image_loader),
-        sess.run(image_loader),
-        sess.run(image_loader),
-        sess.run(image_loader),
-        sess.run(image_loader),
-        sess.run(image_loader),
-        sess.run(image_loader),
-        sess.run(image_loader)])
+        loader_sess.run(image_loader),
+        loader_sess.run(image_loader),
+        loader_sess.run(image_loader),
+        loader_sess.run(image_loader),
+        loader_sess.run(image_loader),
+        loader_sess.run(image_loader),
+        loader_sess.run(image_loader),
+        loader_sess.run(image_loader),
+        loader_sess.run(image_loader),
+        loader_sess.run(image_loader),
+        loader_sess.run(image_loader),
+        loader_sess.run(image_loader)])
     coord.request_stop()
     coord.join(threads)
 
+classifications = sess.run(prediction_operation, feed_dict={x:images, keep_prob:1.0})
+
+with open('signnames.csv') as f:
+    lines = f.read().splitlines()
+splitlines = [line.split(',') for line in lines[1:]]
+signnames = {line[0]:line[1] for line in splitlines}
+
 plt.ion()
+n = 12
+columns = 3
+rows = n // columns + int(n % columns > 0)
 fig = plt.figure()
-plt.subplots_adjust(wspace=0.001, hspace=0.001)
-fig.add_subplot(4, 3, 1)
-plt.imshow(images[0], interpolation='nearest')
-fig.add_subplot(4, 3, 2)
-plt.imshow(images[1], interpolation='nearest')
-fig.add_subplot(4, 3, 3)
-plt.imshow(images[2], interpolation='nearest')
-fig.add_subplot(4, 3, 4)
-plt.imshow(images[3], interpolation='nearest')
-fig.add_subplot(4, 3, 5)
-plt.imshow(images[4], interpolation='nearest')
-fig.add_subplot(4, 3, 6)
-plt.imshow(images[5], interpolation='nearest')
-fig.add_subplot(4, 3, 7)
-plt.imshow(images[6], interpolation='nearest')
-fig.add_subplot(4, 3, 8)
-plt.imshow(images[7], interpolation='nearest')
-fig.add_subplot(4, 3, 9)
-plt.imshow(images[8], interpolation='nearest')
-fig.add_subplot(4, 3, 10)
-plt.imshow(images[9], interpolation='nearest')
-fig.add_subplot(4, 3, 11)
-plt.imshow(images[10], interpolation='nearest')
-fig.add_subplot(4, 3, 12)
-plt.imshow(images[11], interpolation='nearest')
+plt.subplots_adjust(wspace=4, hspace=0.001)
+for t in zip(range(n), images, classifications):
+    ax = fig.add_subplot(rows,columns,t[0]+1)
+    ax.set_title(signnames[str(t[2])])
+    plt.imshow(t[1], interpolation='nearest')
 
 # Visualize uncertainty
 
-def check(sess, X_data, y_data):
-    num_examples = len(X_data)
-    total_accuracy = 0
-    for offset in range(0, num_examples, BATCH_SIZE):
-        batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]
-        correct = sess.run(correct_prediction, feed_dict={x: batch_x, y: batch_y, keep_prob:1.0})
-        probabilities = sess.run(probability_operation, feed_dict={x: batch_x, y: batch_y, keep_prob:1.0})
-        predictions = sess.run(tf.argmax(probability_operation, 1), feed_dict={x: batch_x, y: batch_y, keep_prob:1.0})
-        topn = sess.run(tf.nn.top_k(probabilities, k=1), feed_dict={x: batch_x, y: batch_y, keep_prob:1.0}) 
-        # print(probabilities[~correct].shape)
-        break
-    return ~correct, probabilities, predictions, topn
+# def check(sess, X_data, y_data):
+#     num_examples = len(X_data)
+#     total_accuracy = 0
+#     for offset in range(0, num_examples, BATCH_SIZE):
+#         batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]
+#         correct = sess.run(correct_prediction, feed_dict={x: batch_x, y: batch_y, keep_prob:1.0})
+#         probabilities = sess.run(probability_operation, feed_dict={x: batch_x, y: batch_y, keep_prob:1.0})
+#         predictions = sess.run(tf.argmax(probability_operation, 1), feed_dict={x: batch_x, y: batch_y, keep_prob:1.0})
+#         topn = sess.run(tf.nn.top_k(probabilities, k=1), feed_dict={x: batch_x, y: batch_y, keep_prob:1.0}) 
+#         # print(probabilities[~correct].shape)
+#         break
+#     return ~correct, probabilities, predictions, topn
 
-incorrect, probs, predictions, topn = check(sess, X_tests, y_tests)
-[np.any(p[1]==p[0]) for p in zip(predictions[incorrect], topn[1][incorrect])]
-
-
-filename_queue = tf.train.string_input_producer(tf.train.match_filenames_once("./images/*.jpg"))
-image_reader = tf.WholeFileReader()
-_, image_file = image_reader.read(filename_queue)
-image = tf.image.decode_jpeg(image_file)
+# incorrect, probs, predictions, topn = check(sess, X_tests, y_tests)
+# [np.any(p[1]==p[0]) for p in zip(predictions[incorrect], topn[1][incorrect])]
 

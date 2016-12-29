@@ -5,6 +5,8 @@ from sklearn.cross_validation import train_test_split
 from sklearn.utils import shuffle
 from tensorflow.contrib.layers import flatten
 import math
+import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
 import numpy as np
 import pdb
 import pickle
@@ -20,6 +22,98 @@ MIN_EPOCHS = 10
 MU = 0
 SIGMA = 0.1
 VALIDATION_FRACTION = 0.2
+
+# Load traffic sign data
+
+training_file = '../train.p'
+testing_file = '../test.p'
+
+with open(training_file, mode='rb') as f:
+    train = pickle.load(f)
+with open(testing_file, mode='rb') as f:
+    test = pickle.load(f)
+    
+X_train, y_train = train['features'], train['labels']
+X_tests, y_tests = test['features'], test['labels']
+n_train = train['features'].shape[0]
+n_test = test['features'].shape[0]
+image_shape = X_train.shape[1:]
+n_classes = len(np.unique(train['labels']))
+
+# Explore the data
+
+### Replace each question mark with the appropriate value.
+
+# TODO: Number of training examples
+
+n_train = train['labels'].shape[0]
+
+# TODO: Number of testing examples.
+
+n_test = test['labels'].shape[0]
+
+# TODO: What's the shape of an traffic sign image?
+
+image_shape = train['features'].shape[1:]
+
+# TODO: How many unique classes/labels there are in the dataset.
+
+# The labels are numeric (integers), so we could take advantage of the
+# natural ordering of numbers by subtracting the minimum label value
+# from the maximum label value and adding 1 (because both the min
+# value AND the max value are represented among the labels).
+
+n_classes = max(train['labels'])-min(train['labels'])+1
+
+# However, by doing this we implicitly assume that every possible
+# label (i.e., integer) in that interval is represented in the training
+# set.  That need not be the case.  Therefore, a more reliable way is
+# to count the number of unique elements within set of labels.
+
+import numpy as np
+n_classes = len(np.unique(train['labels']))
+
+print("Number of training examples =", n_train)
+print("Number of testing examples =", n_test)
+print("Image data shape =", image_shape)
+print("Number of classes =", n_classes)
+
+### Data exploration visualization goes here.
+### Feel free to use as many code cells as needed.
+# Visualizations will be shown in the notebook.
+
+# Sample of n sign images
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+plt.ion()
+n = 16
+columns = 4
+rows = n // columns + int(n % columns > 0)
+fig = plt.figure()
+plt.subplots_adjust(wspace=0.001, hspace=0.001)
+for t in zip(range(n), np.random.choice(np.array(range(n_train)), n, False)):
+    fig.add_subplot(rows,columns,t[0]+1)
+    plt.imshow(train['features'][t[1],], interpolation='nearest')
+
+# Shuffle the training data
+
+train['features'], train['labels'] = shuffle(X_train, y_train)
+
+# Scale images
+
+train['features'] = (train['features']-128.)/128.
+test['features'] = (test['features']-128.)/128.
+
+# Reserve a portion of training data as validation data
+
+X_train, X_valid, y_train, y_valid = train_test_split(train['features'], train['labels'], test_size=VALIDATION_FRACTION, random_state=42)
+n_train = X_train.shape[0]
+n_valid = X_valid.shape[0]
+n_tests = X_tests.shape[0]
+
+assert(len(X_train) == len(y_train))
+assert(len(X_valid) == len(y_valid))
+assert(len(X_tests) == len(y_tests))
 
 # Define architecture
 
@@ -62,54 +156,6 @@ def SignNet(x, keep_prob, n_classes):
     logits = tf.matmul(fc2_drop, fc3_W) + fc3_b
     return logits
 
-# Define evaluation function
-
-def evaluate(sess, X_data, y_data):
-    num_examples = len(X_data)
-    total_accuracy = 0
-    for offset in range(0, num_examples, BATCH_SIZE):
-        batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]
-        accuracy = sess.run(accuracy_operation, feed_dict={x: batch_x, y: batch_y, keep_prob:1.0})
-        total_accuracy += (accuracy * len(batch_x))
-    return total_accuracy / num_examples
-
-# Load traffic sign data
-
-training_file = '../train.p'
-testing_file = '../test.p'
-
-with open(training_file, mode='rb') as f:
-    train = pickle.load(f)
-with open(testing_file, mode='rb') as f:
-    test = pickle.load(f)
-    
-X_train, y_train = train['features'], train['labels']
-X_tests, y_tests = test['features'], test['labels']
-n_train = train['features'].shape[0]
-n_test = test['features'].shape[0]
-image_shape = X_train.shape[1:]
-n_classes = len(np.unique(train['labels']))
-
-# Shuffle the training data
-
-train['features'], train['labels'] = shuffle(X_train, y_train)
-
-# Scale images
-
-train['features'] = (train['features']-128.)/128.
-test['features'] = (test['features']-128.)/128.
-
-# Reserve a portion of training data as validation data
-
-X_train, X_valid, y_train, y_valid = train_test_split(train['features'], train['labels'], test_size=VALIDATION_FRACTION, random_state=42)
-n_train = X_train.shape[0]
-n_valid = X_valid.shape[0]
-n_tests = X_tests.shape[0]
-
-assert(len(X_train) == len(y_train))
-assert(len(X_valid) == len(y_valid))
-assert(len(X_tests) == len(y_tests))
-
 # Define the model
 
 tf.reset_default_graph()
@@ -124,6 +170,18 @@ optimizer = tf.train.AdamOptimizer(learning_rate = LEARNING_RATE)
 training_operation = optimizer.minimize(loss_operation)
 correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
 accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+probability_operation = tf.nn.softmax(logits)
+
+# Define evaluation function
+
+def evaluate(sess, X_data, y_data):
+    num_examples = len(X_data)
+    total_accuracy = 0
+    for offset in range(0, num_examples, BATCH_SIZE):
+        batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]
+        accuracy = sess.run(accuracy_operation, feed_dict={x: batch_x, y: batch_y, keep_prob:1.0})
+        total_accuracy += (accuracy * len(batch_x))
+    return total_accuracy / num_examples
 
 # Train the model, validate, and test
 
@@ -158,3 +216,86 @@ except:
     print(save_path)
 
 print("Test Accuracy = {:.3f}".format(evaluate(sess, X_tests, y_tests)))
+
+# Test a Model on New Images
+
+image_loader = \
+        tf.image.resize_images(
+            tf.image.decode_jpeg(
+                tf.WholeFileReader().read(
+                    tf.train.string_input_producer(
+                        tf.train.match_filenames_once("./images/*.jpg")))[1]),
+            [32, 32], method=1)
+
+with tf.Session() as sess:
+    tf.initialize_all_variables().run()
+    coord = tf.train.Coordinator()
+    threads = tf.train.start_queue_runners(coord=coord)
+    images = np.array([
+        sess.run(image_loader),
+        sess.run(image_loader),
+        sess.run(image_loader),
+        sess.run(image_loader),
+        sess.run(image_loader),
+        sess.run(image_loader),
+        sess.run(image_loader),
+        sess.run(image_loader),
+        sess.run(image_loader),
+        sess.run(image_loader),
+        sess.run(image_loader),
+        sess.run(image_loader)])
+    coord.request_stop()
+    coord.join(threads)
+
+plt.ion()
+fig = plt.figure()
+plt.subplots_adjust(wspace=0.001, hspace=0.001)
+fig.add_subplot(4, 3, 1)
+plt.imshow(images[0], interpolation='nearest')
+fig.add_subplot(4, 3, 2)
+plt.imshow(images[1], interpolation='nearest')
+fig.add_subplot(4, 3, 3)
+plt.imshow(images[2], interpolation='nearest')
+fig.add_subplot(4, 3, 4)
+plt.imshow(images[3], interpolation='nearest')
+fig.add_subplot(4, 3, 5)
+plt.imshow(images[4], interpolation='nearest')
+fig.add_subplot(4, 3, 6)
+plt.imshow(images[5], interpolation='nearest')
+fig.add_subplot(4, 3, 7)
+plt.imshow(images[6], interpolation='nearest')
+fig.add_subplot(4, 3, 8)
+plt.imshow(images[7], interpolation='nearest')
+fig.add_subplot(4, 3, 9)
+plt.imshow(images[8], interpolation='nearest')
+fig.add_subplot(4, 3, 10)
+plt.imshow(images[9], interpolation='nearest')
+fig.add_subplot(4, 3, 11)
+plt.imshow(images[10], interpolation='nearest')
+fig.add_subplot(4, 3, 12)
+plt.imshow(images[11], interpolation='nearest')
+
+# Visualize uncertainty
+
+def check(sess, X_data, y_data):
+    num_examples = len(X_data)
+    total_accuracy = 0
+    for offset in range(0, num_examples, BATCH_SIZE):
+        batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]
+        correct = sess.run(correct_prediction, feed_dict={x: batch_x, y: batch_y, keep_prob:1.0})
+        probabilities = sess.run(probability_operation, feed_dict={x: batch_x, y: batch_y, keep_prob:1.0})
+        predictions = sess.run(tf.argmax(probability_operation, 1), feed_dict={x: batch_x, y: batch_y, keep_prob:1.0})
+        topn = sess.run(tf.nn.top_k(probabilities, k=1), feed_dict={x: batch_x, y: batch_y, keep_prob:1.0}) 
+        # print(probabilities[~correct].shape)
+        break
+    return ~correct, probabilities, predictions, topn
+
+incorrect, probs, predictions, topn = check(sess, X_tests, y_tests)
+[np.any(p[1]==p[0]) for p in zip(predictions[incorrect], topn[1][incorrect])]
+
+
+filename_queue = tf.train.string_input_producer(tf.train.match_filenames_once("./images/*.jpg"))
+image_reader = tf.WholeFileReader()
+_, image_file = image_reader.read(filename_queue)
+image = tf.image.decode_jpeg(image_file)
+

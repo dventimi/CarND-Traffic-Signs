@@ -265,6 +265,9 @@ for t in zip(range(n), images, classifications):
     ax.set_title(signnames[str(t[2])])
     plt.imshow(t[1], interpolation='nearest')
 
+fig = plt.figure()
+h = plt.hist(train['labels'], n_classes)
+
 ### Visualize the softmax probabilities here.
 ### Feel free to use as many code cells as needed.
 

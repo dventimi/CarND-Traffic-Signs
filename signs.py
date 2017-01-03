@@ -80,6 +80,9 @@ for t in zip(range(n), np.random.choice(np.array(range(n_train)), n, False)):
     fig.add_subplot(rows,columns,t[0]+1)
     plt.imshow(train['features'][t[1],], interpolation='nearest')
 
+fig = plt.figure()
+h = plt.hist(train['labels'], n_classes)
+
 ### Preprocess the data here.
 ### Feel free to use as many code cells as needed.
 
@@ -162,6 +165,8 @@ y = tf.placeholder(tf.int32, (None))
 keep_prob = tf.placeholder(tf.float32)
 one_hot_y = tf.one_hot(y, n_classes)
 logits = SignNet(x, keep_prob, n_classes)
+probability_operation = tf.nn.softmax(logits)
+prediction_operation = tf.argmax(probability_operation, 1)
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits, one_hot_y)
 loss_operation = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdamOptimizer(learning_rate = LEARNING_RATE)
@@ -204,10 +209,12 @@ def train_model(X_train, y_train, BATCH_SIZE):
         
 saver = tf.train.Saver()
 sess = tf.Session()
+writer = tf.train.SummaryWriter("/tmp/CarND-Traffic-Signs/logs", graph=sess.graph)
 try:
     saver.restore(sess, os.getcwd() + "/model.ckpt")
 except:
-    sess.run(tf.global_variables_initializer())
+    sess.run(tf.initialize_all_variables())
+    # sess.run(tf.global_variables_initializer())
     train_model(X_train, y_train, BATCH_SIZE)
     save_path = saver.save(sess, "model.ckpt")
     print(save_path)
@@ -265,9 +272,6 @@ for t in zip(range(n), images, classifications):
     ax.set_title(signnames[str(t[2])])
     plt.imshow(t[1], interpolation='nearest')
 
-fig = plt.figure()
-h = plt.hist(train['labels'], n_classes)
-
 ### Visualize the softmax probabilities here.
 ### Feel free to use as many code cells as needed.
 
@@ -289,6 +293,3 @@ print(count_in_top_n(sess, X_check, y_check, 2))
 print(count_in_top_n(sess, X_check, y_check, 3))
 print(count_in_top_n(sess, X_check, y_check, 4))
 print(count_in_top_n(sess, X_check, y_check, 5))
-    
-
-

@@ -853,6 +853,129 @@
 
     4. 1x1 followed by 5x5
 
+* Transfer Learning
+
+  - What is an important difference betwee CPUs and GPUs for Deep Learning?  :: 
+
+       CPUs are optimized for low-latency, whereas GPUs are optimized
+       for high-throughput, which is critical for Deep Learning.
+
+  - What is a rule of thumb for comparing Deep Learning training time on CPUs and GPUs?  ::
+
+       Deep Neural Networks train about 5 times faster on a GPU than
+       they do on a CPU.
+
+  - Besides different hardware, what's another approach for speeding up progress in Deep Learning? :: 
+
+       /Transfer Learning/
+
+  - What is /Transfer Learning/? :: 
+
+       /Transfer Learning/ is the practice of adapting existing,
+       pre-trained networks to a new problem, rather than starting
+       from scratch.
+
+  - What are two reasons why Deep Learning only recently became popular?  :: 
+
+    1. the availability of large sets of labelled training data
+
+    2. the availability of fast hardware
+
+  - What is /ImageNet/?
+
+    /ImageNet/ is a huge database of labelled images.
+
+  - What is the /ImageNet Large-Scale Visual Recognition Competition/?  :: 
+
+       The /ImageNet Large-Scale Visual Recognition Competition/ is an
+       annual contest involving industry and academia in which teams
+       try to build the best neural networks for image detection and
+       localization.
+
+  - What is /AlexNet/?  :: 
+
+       /AlexNet/ was a 2012 breakthrough neural network in the
+       ImageNet Large-Scale Visual Recognition Competition.
+
+  - What are some breakthroughs introduced by AlexNet?  :: 
+
+    1. massive parallelism using GPUs
+
+    2. pioneering use of Rectified Linear Units (ReLus) as activation
+       functions.
+
+    3. pioneering use of Dropout as a technique for avoiding
+       overfitting
+
+  - What are two popular methods of applying transfer learning?  ::
+
+    1. /Feature Extraction/
+
+    2. /Finetuning/
+
+  - What is /Feature Extraction/?  ::
+
+       /Feature Extraction/ replaces the last layer (the
+       classification or readout layer) in a pretrained neural network
+       either with a new classification layer or even a small neural
+       network, then trains just the new layer or network while
+       freezing the weights in the pretrained network.
+
+  - What is /Finetuning/?  :: 
+
+       /Finetuning/ is the same as feature extraction except that the
+       weights of the old model aren't frozen.
+
+  - What is the /VGG architecture/? ::
+
+       The /VGG architecture/ is a deep learning architecture
+       published by the Visual Group at Oxford University in 2014 and
+       is a good starting point for transfer learning.  The VGG
+       Architecture is a log sequence of 3x3 convolutional layers
+       broken up with 2x2 pooling layers and finished by a trio of
+       fully-connected layers at the end.
+
+  - What is a strength of the VGG architecture?  :: 
+
+       The VGG architecture has good flexibility for image
+       classification tasks.
+
+  - What is the /GoogLeNet architecture/?  :: 
+
+       The /GoogLeNet architecture/ is a deep learning architecture
+       published by Google in 2014.
+
+  - What is a strength of the GoogLeNet architecture?  :: 
+
+       The GoogLeNet architecture runs really fast because it
+       developed the /Inception module/?
+
+  - What is a strength of the Inception Module?  :: 
+
+       The Inception Module can be arranged in such a way as to have
+       relatively few parameters that need to be trained.
+
+  - What is an example of a good application for the GoogLeNet architecture and its Inception Module?  :: 
+
+       Because the GoogLeNet architecture and its Inception Module
+       have relatively few parameters, it runs very fast and is
+       therefore a good choice for near realtime settings, such as in
+       a self-driving car.
+
+  - What is the /ResNet architecture/?  :: 
+
+       The /ResNet architecture/ architecture is a deep learning
+       architecture published by Microsoft in 2015.  It has 152
+       layers, as opposed to AlexNet's 8 layers, VGG's 19 layers, and
+       GoogLeNet's 22 layers.  The main idea is to add connections
+       that skip layers, so that very deep networks can practically be
+       trained.
+
+  - What are /bottleneck features/? :: 
+
+       What we call /bottleneck features/ are like feature extraction,
+       but with caching.
+
 #  LocalWords:  ge lt infty MiniFlow TensorFlow Fukushima's Cun's tf
 #  LocalWords:  Neocognition LENET Krizhevsky's ALEXNET tensorflow Wx
 #  LocalWords:  mul SoftMax ditaa png Logit softmax mathscr langle le

@@ -976,6 +976,28 @@
        What we call /bottleneck features/ are like feature extraction,
        but with caching.
 
+  - When should you consider Feature Extraction?  :: 
+
+       Consider Feature Extraction when the dataset is small and
+       similar to the original dataset. The higher-level features
+       learned from the original dataset should be relevant to the new
+       dataset.
+
+  - When should you consider Finetuning?  :: 
+
+       Consider Finetuning the when the dataset is large and similar
+       to the original dataset. In this case we should be much more
+       confident we won't overfit so it should be safe to alter the
+       original weights.
+
+  - When should you consider training from scratch?  :: 
+
+       Consider training from scratch when the dataset is large and
+       very different from the original dataset. In this case we have
+       enough data to confidently train from scratch. However, even in
+       this case it might be more beneficial to finetune and the
+       entire network from pretrained weights.
+
 #  LocalWords:  ge lt infty MiniFlow TensorFlow Fukushima's Cun's tf
 #  LocalWords:  Neocognition LENET Krizhevsky's ALEXNET tensorflow Wx
 #  LocalWords:  mul SoftMax ditaa png Logit softmax mathscr langle le

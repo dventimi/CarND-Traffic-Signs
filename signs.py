@@ -293,3 +293,9 @@ print(count_in_top_n(sess, X_check, y_check, 2))
 print(count_in_top_n(sess, X_check, y_check, 3))
 print(count_in_top_n(sess, X_check, y_check, 4))
 print(count_in_top_n(sess, X_check, y_check, 5))
+
+# # load the Cifar10 dataset
+
+# from keras.datasets import cifar10
+# (X_train, y_train), (X_test, y_test) = cifar10.load_data()
+

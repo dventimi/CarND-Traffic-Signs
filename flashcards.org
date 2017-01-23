@@ -998,9 +998,73 @@
        this case it might be more beneficial to finetune and the
        entire network from pretrained weights.
 
-#  LocalWords:  ge lt infty MiniFlow TensorFlow Fukushima's Cun's tf
+* Advanced Lane Finding
+
+  - What are the three steps in robotics?  ::
+
+    1. sense the world
+
+    2. decide upon an action
+
+    3. perform the action
+
+  - What is the /Camera Matrix/ C?  ::
+
+       The /Camera Matrix/ C is a matrix that transforms 3D object
+       points to 2D images points.
+
+  - What is /Radial Distortion/?  :: 
+
+       /Radial Distortion/ is image distortion that occurs when lenses
+       bend light by a different amount near the edges than they do
+       near the center.  It tends to make the image bend outward or
+       inward.  
+
+  - What is /Tangential Distortion/?  :: 
+
+       /Tangential Distortion/ is image distortion that occurs when
+       the camera lens is not parallel to the imaging plan.  It tends
+       to make objects appear nearer or farther than they actually
+       are.
+
+  - What are /Distortion Coefficients/?  :: 
+
+       /Distortion Coefficients/ are 5 numbers that conveniently
+       capture much of what occurs in tangential and radial
+       distortion.
+
+       \[ \left( k_1, k_2, p_1, p_2, k_3 \right) \]
+
+  - What is a method for counteracting the effects of distortion?  :: 
+
+       Calibrating the camera system by imaging known objects and then
+       identifying the distortion coefficients is a way to correct for
+       distortion.
+
+  - What is a common object that is often used for distortion callibration?  :: 
+
+       A chessboard
+
+  - How many callibration images are recommended in order to get a good callibration?  :: 
+
+       At least 20
+
+  - What is /Perspective/? :: 
+
+       /Perspective/ is the phenomenon in an image whereby objects
+       appear smaller the farther away they are from a viewpoint, and
+       parallel lines appear to converge to a point.
+
+  - What is a /Perspective Transform/?  :: 
+
+       A /Perspective Transform/ transforms the apparent z coordinates
+       of the object points which in turn changes that object's 2D
+       image representation.
+
+#  LOCALWORDS:  ge lt infty MiniFlow TensorFlow Fukushima's Cun's tf
 #  LocalWords:  Neocognition LENET Krizhevsky's ALEXNET tensorflow Wx
 #  LocalWords:  mul SoftMax ditaa png Logit softmax mathscr langle le
 #  LocalWords:  rangle RGB SGD ADAGRAD usepackage mathrsfs amsmath
 #  LocalWords:  amssymb Nanodegree RELU sess ckpt Convnet convnet
 #  LocalWords:  conv ksize cRED cYEL cGRE cBLU convnets
+
